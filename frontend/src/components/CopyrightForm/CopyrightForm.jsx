@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { acsApi } from '../../api/apiService';
 import { useToast } from '../../hooks/useToast';
@@ -11,6 +11,7 @@ const CopyrightForm = ({ isOpen, onClose, paperId, onSuccess }) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState(null);
+  const [fetchError, setFetchError] = useState(false);
   const [formValues, setFormValues] = useState({
     author_name: '',
     author_affiliation: '',
@@ -21,16 +22,35 @@ const CopyrightForm = ({ isOpen, onClose, paperId, onSuccess }) => {
     co_authors_consent: false,
     copyright_agreed: false,
   });
+  
+  // Use ref to track if we've already fetched for this paperId
+  const lastFetchedPaperIdRef = useRef(null);
 
   // Fetch form data when opening
   useEffect(() => {
+    // Only fetch if modal is open and we haven't fetched for this paper yet
+    if (!isOpen || !paperId) {
+      return;
+    }
+    
+    // Prevent re-fetching for the same paper
+    if (lastFetchedPaperIdRef.current === paperId && formData) {
+      return;
+    }
+    
+    let isMounted = true;
+    
     const fetchFormData = async () => {
-      if (!isOpen || !paperId) return;
-      
       setLoading(true);
+      setFetchError(false);
+      
       try {
         const response = await acsApi.copyright.getForm(paperId);
+        
+        if (!isMounted) return;
+        
         setFormData(response);
+        lastFetchedPaperIdRef.current = paperId;
         
         // Pre-fill author name if available
         if (response.author_name) {
@@ -42,15 +62,30 @@ const CopyrightForm = ({ isOpen, onClose, paperId, onSuccess }) => {
         }
       } catch (error) {
         console.error('Failed to fetch copyright form:', error);
-        showError('Failed to load copyright form');
-        onClose();
+        if (!isMounted) return;
+        setFetchError(true);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchFormData();
-  }, [isOpen, paperId, showError, onClose]);
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, paperId]); // Remove onClose and showError from dependencies
+  
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setFetchError(false);
+      lastFetchedPaperIdRef.current = null;
+      setFormData(null);
+    }
+  }, [isOpen]);
 
   // Calculate time remaining
   const getTimeRemaining = () => {
@@ -149,6 +184,15 @@ const CopyrightForm = ({ isOpen, onClose, paperId, onSuccess }) => {
           <div className={styles.loadingState}>
             <div className={styles.spinner}></div>
             <p>Loading form...</p>
+          </div>
+        ) : fetchError ? (
+          <div className={styles.expiredState}>
+            <div className={styles.expiredIcon}>⚠️</div>
+            <h3>Failed to Load</h3>
+            <p>Unable to load the copyright form. Please try again later or contact the editorial office.</p>
+            <button type="button" className={styles.closeModalBtn} onClick={onClose}>
+              Close
+            </button>
           </div>
         ) : formData?.status === 'expired' ? (
           <div className={styles.expiredState}>
