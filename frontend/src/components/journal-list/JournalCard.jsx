@@ -68,12 +68,6 @@ const JournalCard = ({ journal }) => {
         >
           Visit Journal <span className="material-symbols-rounded">arrow_forward</span>
         </Link>
-        <Link
-          to={`/journal/${journal.id}`}
-          className="journal-card-btn journal-details-btn"
-        >
-          Details <span className="material-symbols-rounded">arrow_forward</span>
-        </Link>
       </div>
     </div>
   );
