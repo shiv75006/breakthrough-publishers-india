@@ -63,26 +63,27 @@ const PaperCard = ({ paper, actions = 'minimal', onManage, onView, role }) => {
               <span className="material-symbols-rounded">calendar_today</span>
               {date}
             </span>
-            <StatusChips status={paper.status} />
             {paper.journal_name && (
               <span className={styles.metaItem}>
                 <span className="material-symbols-rounded">book</span>
                 {paper.journal_name}
               </span>
             )}
-            {/* Paper Type */}
-            <span className={styles.paperTypeChip}>
-              {paperType}
-            </span>
-            {/* Review Status Chip for Admin/Editor */}
-            {(actions === 'admin' || actions === 'editor') && paper.review_status && (
-              <span className={`${styles.reviewStatusChip} ${styles[`review_${paper.review_status}`]}`}>
-                {paper.review_status === 'not_assigned' ? 'Not Assigned' :
-                 paper.review_status === 'pending' ? 'Review Pending' :
-                 paper.review_status === 'partial' ? `Reviewed ${paper.completed_reviews}/${paper.total_reviewers}` :
-                 `Reviewed ${paper.completed_reviews}/${paper.total_reviewers}`}
+            <div className={styles.chipsGroup}>
+              <StatusChips status={paper.status} />
+              <span className={styles.paperTypeChip}>
+                {paperType}
               </span>
-            )}
+              {/* Review Status Chip for Admin/Editor */}
+              {(actions === 'admin' || actions === 'editor') && paper.review_status && (
+                <span className={`${styles.reviewStatusChip} ${styles[`review_${paper.review_status}`]}`}>
+                  {paper.review_status === 'not_assigned' ? 'Not Assigned' :
+                   paper.review_status === 'pending' ? 'Review Pending' :
+                   paper.review_status === 'partial' ? `Reviewed ${paper.completed_reviews}/${paper.total_reviewers}` :
+                   `Reviewed ${paper.completed_reviews}/${paper.total_reviewers}`}
+                </span>
+              )}
+            </div>
           </div>
 
           <div className={styles.metaRight}>
