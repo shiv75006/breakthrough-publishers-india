@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, desc, or_
 from datetime import datetime
 from app.db.database import get_db
-from app.db.models import User, Journal, Paper, PaperPublished, OnlineReview, ReviewSubmission, UserRole, News, EmailTemplate, PaperCorrespondence
+from app.db.models import User, Journal, Paper, PaperPublished, OnlineReview, ReviewSubmission, UserRole, News, EmailTemplate, PaperCorrespondence, CopyrightForm
 from app.core.security import get_current_user
 from app.core.rate_limit import limiter
 from app.utils.auth_helpers import check_role
@@ -537,6 +537,93 @@ async def get_paper_detail(
         "revision_notes": paper.revision_notes,
         "research_area": paper.research_area,
         "message_to_editor": paper.message_to_editor
+    }
+
+
+@router.post("/papers/{paper_id}/trigger-copyright-form")
+@limiter.limit("50/minute")
+async def trigger_copyright_form(
+    request: Request,
+    paper_id: int,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Manually trigger copyright form creation for an accepted paper.
+    Used for papers that were accepted before copyright form feature was added.
+    
+    Args:
+        paper_id: Paper ID
+        
+    Returns:
+        Copyright form creation result
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    paper = db.query(Paper).filter(Paper.id == paper_id).first()
+    if not paper:
+        raise HTTPException(status_code=404, detail="Paper not found")
+    
+    if paper.status != "accepted":
+        raise HTTPException(status_code=400, detail="Paper must be in 'accepted' status to create copyright form")
+    
+    # Check if form already exists
+    existing_form = db.query(CopyrightForm).filter(CopyrightForm.paper_id == paper_id).first()
+    if existing_form and existing_form.status == "completed":
+        raise HTTPException(status_code=400, detail="Copyright form already completed for this paper")
+    
+    # Get author info
+    author = None
+    if paper.added_by and paper.added_by.isdigit():
+        author = db.query(User).filter(User.id == int(paper.added_by)).first()
+    
+    if not author:
+        raise HTTPException(status_code=400, detail="Could not find author for this paper")
+    
+    # Get journal info
+    journal = None
+    if paper.journal:
+        journal = db.query(Journal).filter(Journal.fld_id == paper.journal).first()
+    
+    # Create or reset copyright form
+    from app.api.v1.copyright import create_copyright_form_for_paper, send_copyright_form_email
+    
+    copyright_form = create_copyright_form_for_paper(
+        db=db,
+        paper_id=paper.id,
+        author_id=author.id
+    )
+    
+    # Send notification email
+    author_name = f"{author.fname or ''} {author.lname or ''}".strip() or "Author"
+    journal_name = journal.fld_journal_name if journal else "Breakthrough Publishers India Journal"
+    
+    try:
+        send_copyright_form_email(
+            author.email,
+            author_name,
+            paper.title,
+            journal_name,
+            paper.id,
+            copyright_form.deadline,
+            False,  # is_reminder
+            0  # reminder_number
+        )
+        email_sent = True
+    except Exception as e:
+        email_sent = False
+    
+    return {
+        "success": True,
+        "paper_id": paper.id,
+        "paper_title": paper.title,
+        "copyright_form_id": copyright_form.id,
+        "status": copyright_form.status,
+        "deadline": copyright_form.deadline.isoformat() if copyright_form.deadline else None,
+        "author_email": author.email,
+        "email_sent": email_sent,
+        "message": "Copyright form created and notification sent to author" if email_sent else "Copyright form created but email notification failed"
     }
 
 

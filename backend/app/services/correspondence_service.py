@@ -36,7 +36,6 @@ EMAIL_TEMPLATES: Dict[str, Dict[str, str]] = {
             <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #769FCD; margin: 20px 0;">
                 <p><strong>Submission Details:</strong></p>
                 <p><strong>Paper Title:</strong> {paper_title}</p>
-                <p><strong>Paper ID:</strong> {paper_code}</p>
                 <p><strong>Journal:</strong> {journal_name}</p>
                 <p><strong>Submission Date:</strong> {date}</p>
             </div>
@@ -58,7 +57,6 @@ EMAIL_TEMPLATES: Dict[str, Dict[str, str]] = {
             <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3498db; margin: 20px 0;">
                 <p><strong>Paper Details:</strong></p>
                 <p><strong>Paper Title:</strong> {paper_title}</p>
-                <p><strong>Paper ID:</strong> {paper_code}</p>
                 <p><strong>Status:</strong> <span style="color: #3498db; font-weight: bold;">Under Review</span></p>
             </div>
             
@@ -78,7 +76,6 @@ EMAIL_TEMPLATES: Dict[str, Dict[str, str]] = {
             <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #f39c12; margin: 20px 0;">
                 <p><strong>Paper Details:</strong></p>
                 <p><strong>Paper Title:</strong> {paper_title}</p>
-                <p><strong>Paper ID:</strong> {paper_code}</p>
                 <p><strong>Status:</strong> <span style="color: #f39c12; font-weight: bold;">Revision Requested</span></p>
                 {deadline_info}
             </div>
@@ -106,7 +103,6 @@ EMAIL_TEMPLATES: Dict[str, Dict[str, str]] = {
             <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #27ae60; margin: 20px 0;">
                 <p><strong>Paper Details:</strong></p>
                 <p><strong>Paper Title:</strong> {paper_title}</p>
-                <p><strong>Paper ID:</strong> {paper_code}</p>
                 <p><strong>Status:</strong> <span style="color: #27ae60; font-weight: bold;">ACCEPTED</span></p>
             </div>
             
@@ -134,7 +130,6 @@ EMAIL_TEMPLATES: Dict[str, Dict[str, str]] = {
             <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #e74c3c; margin: 20px 0;">
                 <p><strong>Paper Details:</strong></p>
                 <p><strong>Paper Title:</strong> {paper_title}</p>
-                <p><strong>Paper ID:</strong> {paper_code}</p>
                 <p><strong>Status:</strong> <span style="color: #e74c3c; font-weight: bold;">Not Accepted</span></p>
             </div>
             
@@ -185,7 +180,6 @@ EMAIL_TEMPLATES: Dict[str, Dict[str, str]] = {
             <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #1abc9c; margin: 20px 0;">
                 <p><strong>Revision Details:</strong></p>
                 <p><strong>Paper Title:</strong> {paper_title}</p>
-                <p><strong>Paper ID:</strong> {paper_code}</p>
                 <p><strong>Version:</strong> {version_number}</p>
                 <p><strong>Submission Date:</strong> {date}</p>
             </div>
@@ -207,7 +201,6 @@ EMAIL_TEMPLATES: Dict[str, Dict[str, str]] = {
             <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #2ecc71; margin: 20px 0;">
                 <p><strong>Review Details:</strong></p>
                 <p><strong>Paper Title:</strong> {paper_title}</p>
-                <p><strong>Paper ID:</strong> {paper_code}</p>
                 <p><strong>Reviewer:</strong> {reviewer_name}</p>
                 <p><strong>Recommendation:</strong> <span style="font-weight: bold;">{recommendation}</span></p>
                 <p><strong>Overall Rating:</strong> {overall_rating}/5</p>
@@ -233,7 +226,6 @@ EMAIL_TEMPLATES: Dict[str, Dict[str, str]] = {
             <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3498db; margin: 20px 0;">
                 <p><strong>Revision Details:</strong></p>
                 <p><strong>Paper Title:</strong> {paper_title}</p>
-                <p><strong>Paper ID:</strong> {paper_code}</p>
                 <p><strong>Author:</strong> {author_name}</p>
                 <p><strong>Version:</strong> {version_number}</p>
                 <p><strong>Submitted:</strong> {date}</p>
@@ -259,7 +251,6 @@ EMAIL_TEMPLATES: Dict[str, Dict[str, str]] = {
             <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #27ae60; margin: 20px 0;">
                 <p><strong>Details:</strong></p>
                 <p><strong>Paper Title:</strong> {paper_title}</p>
-                <p><strong>Paper ID:</strong> {paper_code}</p>
                 <p><strong>Reviewer:</strong> {reviewer_name}</p>
                 <p><strong>Review Due Date:</strong> {due_date}</p>
             </div>
@@ -277,7 +268,6 @@ EMAIL_TEMPLATES: Dict[str, Dict[str, str]] = {
             <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #e67e22; margin: 20px 0;">
                 <p><strong>Details:</strong></p>
                 <p><strong>Paper Title:</strong> {paper_title}</p>
-                <p><strong>Paper ID:</strong> {paper_code}</p>
                 <p><strong>Reviewer:</strong> {reviewer_name}</p>
                 {decline_reason_section}
             </div>
@@ -303,7 +293,6 @@ EMAIL_TEMPLATES: Dict[str, Dict[str, str]] = {
             <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #9b59b6; margin: 20px 0;">
                 <p><strong>Paper Details:</strong></p>
                 <p><strong>Paper Title:</strong> {paper_title}</p>
-                <p><strong>Paper ID:</strong> {paper_code}</p>
             </div>
             
             <p>The editorial team will review the feedback and communicate their decision shortly.</p>

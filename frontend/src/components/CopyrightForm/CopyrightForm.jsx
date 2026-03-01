@@ -5,7 +5,7 @@ import { useToast } from '../../hooks/useToast';
 import styles from './CopyrightForm.module.css';
 
 const CopyrightForm = ({ isOpen, onClose, paperId, onSuccess }) => {
-  const { showSuccess, showError } = useToast();
+  const { success, error: showError } = useToast();
   
   // State
   const [loading, setLoading] = useState(true);
@@ -120,7 +120,7 @@ const CopyrightForm = ({ isOpen, onClose, paperId, onSuccess }) => {
     setSubmitting(true);
     try {
       await acsApi.copyright.submitForm(paperId, formValues);
-      showSuccess('Copyright transfer form submitted successfully!');
+      success('Copyright transfer form submitted successfully!');
       onSuccess?.();
       onClose();
     } catch (error) {

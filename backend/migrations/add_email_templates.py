@@ -120,7 +120,7 @@ def run_migration():
 
 Thank you for submitting your paper titled "{{paper_title}}" to {{journal_name}}.
 
-Your submission has been received and assigned the Paper ID: {{paper_id}}.
+Your submission has been received.
 
 We will review your submission and notify you of our decision. Please allow 2-4 weeks for the initial review process.
 
@@ -138,7 +138,7 @@ The Editorial Team
                 "subject": "Your Paper is Under Review - {{paper_title}}",
                 "body_template": """Dear {{author_name}},
 
-We are pleased to inform you that your paper titled "{{paper_title}}" (Paper ID: {{paper_id}}) has been sent for peer review.
+We are pleased to inform you that your paper titled "{{paper_title}}" has been sent for peer review.
 
 The review process typically takes 4-8 weeks. We will notify you once we receive the reviewers' feedback.
 
@@ -156,7 +156,7 @@ The Editorial Team
                 "subject": "Revision Requested for Your Paper - {{paper_title}}",
                 "body_template": """Dear {{author_name}},
 
-Thank you for submitting your paper titled "{{paper_title}}" (Paper ID: {{paper_id}}) to {{journal_name}}.
+Thank you for submitting your paper titled "{{paper_title}}" to {{journal_name}}.
 
 After careful review, the reviewers have requested revisions to your manuscript. Please find the reviewer comments below:
 
@@ -178,7 +178,7 @@ The Editorial Team
                 "subject": "Congratulations! Your Paper Has Been Accepted - {{paper_title}}",
                 "body_template": """Dear {{author_name}},
 
-We are pleased to inform you that your paper titled "{{paper_title}}" (Paper ID: {{paper_id}}) has been accepted for publication in {{journal_name}}.
+We are pleased to inform you that your paper titled "{{paper_title}}" has been accepted for publication in {{journal_name}}.
 
 Congratulations on this achievement!
 
@@ -198,7 +198,7 @@ The Editorial Team
                 "subject": "Decision on Your Paper Submission - {{paper_title}}",
                 "body_template": """Dear {{author_name}},
 
-Thank you for submitting your paper titled "{{paper_title}}" (Paper ID: {{paper_id}}) to {{journal_name}}.
+Thank you for submitting your paper titled "{{paper_title}}" to {{journal_name}}.
 
 After careful consideration by our reviewers and editorial board, we regret to inform you that your paper has not been accepted for publication.
 
@@ -217,10 +217,10 @@ The Editorial Team
             {
                 "name": "General Inquiry",
                 "slug": "general_inquiry",
-                "subject": "RE: {{paper_title}} (Paper ID: {{paper_id}})",
+                "subject": "RE: {{paper_title}}",
                 "body_template": """Dear {{author_name}},
 
-Thank you for your inquiry regarding your paper titled "{{paper_title}}" (Paper ID: {{paper_id}}).
+Thank you for your inquiry regarding your paper titled "{{paper_title}}".
 
 {{custom_message}}
 
@@ -262,7 +262,7 @@ The Editorial Team
                 "subject": "Status Update - {{paper_title}}",
                 "body_template": """Dear {{author_name}},
 
-This is an update regarding your paper titled "{{paper_title}}" (Paper ID: {{paper_id}}).
+This is an update regarding your paper titled "{{paper_title}}".
 
 {{status_message}}
 

@@ -166,6 +166,10 @@ export const acsApi = {
       apiService.get(`/api/v1/admin/papers/${paperId}/correspondence`),
     sendCorrespondence: (paperId, data) =>
       apiService.post(`/api/v1/admin/papers/${paperId}/correspondence`, data),
+    
+    // Copyright Form Management
+    triggerCopyrightForm: (paperId) =>
+      apiService.post(`/api/v1/admin/papers/${paperId}/trigger-copyright-form`),
   },
 
   // Author endpoints

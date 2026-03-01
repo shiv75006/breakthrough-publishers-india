@@ -192,6 +192,30 @@
   cursor: not-allowed;
 }
 
+.btnWarning {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #f59e0b;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btnWarning:hover:not(:disabled) {
+  background: #d97706;
+}
+
+.btnWarning:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* =====================================================
    Page Content - Two Column Layout
    ===================================================== */

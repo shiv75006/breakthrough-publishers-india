@@ -56,6 +56,8 @@ const PaperDetailsPage = () => {
   const [revisionHistory, setRevisionHistory] = useState([]);
   const [loadingRevisions, setLoadingRevisions] = useState(false);
   const [showRevisions, setShowRevisions] = useState(false);
+  // Copyright form trigger (admin only)
+  const [triggeringCopyright, setTriggeringCopyright] = useState(false);
 
   // Generate alerts based on paper status and data
   const getAlerts = () => {
@@ -583,6 +585,31 @@ const PaperDetailsPage = () => {
     setShowReviewerDropdown(false);
   };
 
+  // Trigger copyright form for accepted papers (admin only)
+  const handleTriggerCopyrightForm = async () => {
+    if (!paper?.id) return;
+    
+    const confirmed = await confirm({
+      title: 'Trigger Copyright Form',
+      message: `This will create a copyright transfer form for "${paper.title}" and send an email notification to the author. The author will have 48 hours to complete it.`,
+      confirmText: 'Send Copyright Form',
+      confirmColor: 'primary'
+    });
+    
+    if (!confirmed) return;
+    
+    try {
+      setTriggeringCopyright(true);
+      const result = await acsApi.admin.triggerCopyrightForm(paper.id);
+      success(`Copyright form created! Email ${result.email_sent ? 'sent' : 'notification failed'} to ${result.author_email}`, 5000);
+    } catch (err) {
+      console.error('Error triggering copyright form:', err);
+      showError(err.response?.data?.detail || 'Failed to trigger copyright form', 5000);
+    } finally {
+      setTriggeringCopyright(false);
+    }
+  };
+
   const handleViewPaper = () => {
     if (paper?.id) {
       // Get token for authentication (stored as 'authToken' in localStorage)
@@ -792,8 +819,19 @@ const PaperDetailsPage = () => {
                 </button>
               )}
               
+              {isAdmin() && paper.status === 'accepted' && (
+                <button 
+                  className={styles.btnOutline} 
+                  onClick={handleTriggerCopyrightForm}
+                  disabled={triggeringCopyright}
+                >
+                  <span className="material-symbols-rounded">contract</span>
+                  {triggeringCopyright ? 'Sending...' : 'Send Copyright Form'}
+                </button>
+              )}
+              
               {(isEditor() || isAdmin()) && String(paper.added_by) !== String(user?.id) && (
-                <button className={styles.btnDark} onClick={() => {
+                <button className={styles.btnOutline} onClick={() => {
                   setShowAssignReviewer(true);
                   setShowReviewerDropdown(true); // Always show dropdown when modal opens
                   if (!availableReviewers.length) {
