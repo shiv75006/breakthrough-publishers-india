@@ -59,7 +59,7 @@ const PaperCard = ({ paper, actions = 'minimal', onManage, onView, role }) => {
           <div className={styles.metaLeft}>
             <span className={styles.metaItem}>
               <span className="material-symbols-rounded">calendar_today</span>
-              {paper.submitted_date ? new Date(paper.submitted_date).toLocaleDateString() : 'N/A'}
+              {date}
             </span>
             <StatusChips status={paper.status} />
             {paper.journal_name && (

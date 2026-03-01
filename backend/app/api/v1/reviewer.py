@@ -331,10 +331,8 @@ async def decline_invitation(
         # Notify editor that reviewer declined
         if paper and background_tasks:
             editor = None
-            if invitation.invited_by:
-                editor = db.query(User).filter(User.id == invitation.invited_by).first()
-            
-            if not editor and paper.journal:
+            # Find editor from paper's journal
+            if paper.journal:
                 editor_record = db.query(Editor).filter(Editor.journal_id == paper.journal).first()
                 if editor_record:
                     editor = db.query(User).filter(User.email == editor_record.email).first()
