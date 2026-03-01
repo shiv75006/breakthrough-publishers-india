@@ -19,9 +19,12 @@ export const authService = {
         password,
       });
 
-      // Store token in localStorage
+      // Store tokens in localStorage
       if (response.access_token) {
         localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.access_token);
+      }
+      if (response.refresh_token) {
+        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refresh_token);
       }
 
       return response;
@@ -39,9 +42,12 @@ export const authService = {
     try {
       const response = await apiService.post(AUTH_ENDPOINTS.SIGNUP, userData);
 
-      // Store token in localStorage
+      // Store tokens in localStorage
       if (response.access_token) {
         localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.access_token);
+      }
+      if (response.refresh_token) {
+        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refresh_token);
       }
 
       return response;
@@ -74,9 +80,12 @@ export const authService = {
         refresh_token: refreshToken,
       });
 
-      // Store new token
+      // Store new tokens
       if (response.access_token) {
         localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.access_token);
+      }
+      if (response.refresh_token) {
+        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refresh_token);
       }
 
       return response;
@@ -91,8 +100,16 @@ export const authService = {
   logout: () => {
     // Clear all auth data from localStorage
     localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER);
     localStorage.removeItem(STORAGE_KEYS.TOKEN_EXPIRY);
+  },
+
+  /**
+   * Get stored refresh token from localStorage
+   */
+  getRefreshToken: () => {
+    return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
   },
 
   /**

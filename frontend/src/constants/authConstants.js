@@ -65,6 +65,7 @@ export const VALIDATION_RULES = {
 
 export const STORAGE_KEYS = {
   AUTH_TOKEN: 'authToken',
+  REFRESH_TOKEN: 'refreshToken',
   USER: 'user',
   TOKEN_EXPIRY: 'tokenExpiry',
 };
