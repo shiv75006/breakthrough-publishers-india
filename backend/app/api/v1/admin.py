@@ -2055,3 +2055,90 @@ async def send_paper_correspondence(
             "email": author.email
         }
     }
+
+
+@router.post("/test-email")
+@limiter.limit("5/minute")
+async def test_email_configuration(
+    request: Request,
+    to_email: str = Body(..., description="Email address to send test email"),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Test email configuration by sending a test email.
+    Admin only endpoint for debugging email issues.
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    from app.config import settings
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    
+    # Get current configuration
+    config_info = {
+        "smtp_server": settings.SMTP_SERVER,
+        "smtp_port": settings.SMTP_PORT,
+        "smtp_username": settings.SMTP_USERNAME,
+        "email_from": settings.EMAIL_FROM,
+        "email_from_name": settings.EMAIL_FROM_NAME,
+    }
+    
+    try:
+        # Create test message
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = "AACS Email Test - Configuration Verification"
+        msg['From'] = f"{settings.EMAIL_FROM_NAME} <{settings.EMAIL_FROM}>"
+        msg['To'] = to_email
+        
+        html_content = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; padding: 20px;">
+            <h2 style="color: #0D4715;">AACS Email Test Successful!</h2>
+            <p>This is a test email from the AACS Journal Management System.</p>
+            <p>If you received this email, the email configuration is working correctly.</p>
+            <hr>
+            <p><small>Sent at: {datetime.now().isoformat()}</small></p>
+        </body>
+        </html>
+        """
+        
+        text_content = f"AACS Email Test Successful! Sent at: {datetime.now().isoformat()}"
+        
+        msg.attach(MIMEText(text_content, 'plain'))
+        msg.attach(MIMEText(html_content, 'html'))
+        
+        # Try to send
+        with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=15) as server:
+            server.starttls()
+            server.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
+            server.sendmail(settings.EMAIL_FROM, [to_email], msg.as_string())
+        
+        return {
+            "success": True,
+            "message": f"Test email sent successfully to {to_email}",
+            "config": config_info
+        }
+        
+    except smtplib.SMTPAuthenticationError as e:
+        return {
+            "success": False,
+            "error": "SMTP Authentication Failed",
+            "details": str(e),
+            "config": config_info
+        }
+    except smtplib.SMTPException as e:
+        return {
+            "success": False,
+            "error": "SMTP Error",
+            "details": str(e),
+            "config": config_info
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": "General Error",
+            "details": str(e),
+            "config": config_info
+        }
