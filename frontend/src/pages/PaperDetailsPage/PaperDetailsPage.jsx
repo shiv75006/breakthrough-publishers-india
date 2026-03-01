@@ -31,6 +31,11 @@ const PaperDetailsPage = () => {
   const [filteredReviewers, setFilteredReviewers] = useState([]);
   const [loadingReviewers, setLoadingReviewers] = useState(false);
   const [showReviewerDropdown, setShowReviewerDropdown] = useState(false);
+  // External reviewer invitation state
+  const [inviteMode, setInviteMode] = useState('existing'); // 'existing' | 'external'
+  const [externalEmail, setExternalEmail] = useState('');
+  const [externalName, setExternalName] = useState('');
+  const [emailError, setEmailError] = useState('');
   // Author resubmission state
   const [showResubmitForm, setShowResubmitForm] = useState(false);
   const [trackChangesFile, setTrackChangesFile] = useState(null);
@@ -471,23 +476,48 @@ const PaperDetailsPage = () => {
   };
 
   const handleAssignReviewer = async () => {
-    if (!reviewerEmail.trim()) {
-      showError('Please select or enter a reviewer email', 3000);
+    // Determine the email based on invite mode
+    const emailToUse = inviteMode === 'external' ? externalEmail.trim() : reviewerEmail.trim();
+    
+    if (!emailToUse) {
+      showError(inviteMode === 'external' 
+        ? 'Please enter an email address' 
+        : 'Please select or enter a reviewer email', 3000);
       return;
+    }
+
+    // Validate email format for external mode
+    if (inviteMode === 'external') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailToUse)) {
+        showError('Please enter a valid email address', 3000);
+        return;
+      }
     }
 
     try {
       setAssigningReviewer(true);
       // Use appropriate API based on role
       if (isAdmin()) {
-        await acsApi.admin.inviteReviewer(paper.id, reviewerEmail, dueDays);
+        await acsApi.admin.inviteReviewer(paper.id, emailToUse, dueDays);
       } else {
-        await acsApi.editor.inviteReviewer(paper.id, reviewerEmail, dueDays);
+        await acsApi.editor.inviteReviewer(paper.id, emailToUse, dueDays);
       }
-      success(`Reviewer invitation sent to ${reviewerEmail}`, 4000);
+      
+      // Different success messages based on mode
+      const successMsg = inviteMode === 'external'
+        ? `Invitation sent to ${emailToUse}. They will receive an email to create an account and review this paper.`
+        : `Reviewer invitation sent to ${emailToUse}`;
+      success(successMsg, 5000);
+      
+      // Reset form state
       setReviewerEmail('');
       setSearchReviewers('');
+      setExternalEmail('');
+      setExternalName('');
+      setEmailError('');
       setDueDays(14);
+      setInviteMode('existing');
       setShowAssignReviewer(false);
       setShowReviewerDropdown(false);
       // Refresh paper details
@@ -1342,6 +1372,10 @@ const PaperDetailsPage = () => {
           setShowAssignReviewer(false);
           setReviewerEmail('');
           setSearchReviewers('');
+          setExternalEmail('');
+          setExternalName('');
+          setEmailError('');
+          setInviteMode('existing');
           setShowReviewerDropdown(false);
         }}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -1351,6 +1385,10 @@ const PaperDetailsPage = () => {
                 setShowAssignReviewer(false);
                 setReviewerEmail('');
                 setSearchReviewers('');
+                setExternalEmail('');
+                setExternalName('');
+                setEmailError('');
+                setInviteMode('existing');
                 setShowReviewerDropdown(false);
               }}>
                 <span className="material-symbols-rounded">close</span>
@@ -1389,84 +1427,160 @@ const PaperDetailsPage = () => {
                 </div>
               )}
               
+              {/* Tab buttons for invite mode */}
+              <div className={styles.inviteModeTabs}>
+                <button
+                  className={`${styles.inviteModeTab} ${inviteMode === 'existing' ? styles.inviteModeTabActive : ''}`}
+                  onClick={() => {
+                    setInviteMode('existing');
+                    setEmailError('');
+                  }}
+                  disabled={assigningReviewer}
+                >
+                  <span className="material-symbols-rounded">group</span>
+                  Search Existing
+                </button>
+                <button
+                  className={`${styles.inviteModeTab} ${inviteMode === 'external' ? styles.inviteModeTabActive : ''}`}
+                  onClick={() => {
+                    setInviteMode('external');
+                    setShowReviewerDropdown(false);
+                  }}
+                  disabled={assigningReviewer}
+                >
+                  <span className="material-symbols-rounded">person_add</span>
+                  Invite External
+                </button>
+              </div>
+
               <div className={styles.form}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="reviewerEmail">Select or Enter Reviewer Email</label>
-                  <div className={styles.reviewerInputContainer}>
-                    <input
-                      type="text"
-                      id="reviewerEmail"
-                      value={searchReviewers}
-                      onChange={(e) => {
-                        setSearchReviewers(e.target.value);
-                        setShowReviewerDropdown(true);
-                      }}
-                      onFocus={() => {
-                        if (!availableReviewers.length) {
-                          fetchAvailableReviewers();
-                        }
-                        setShowReviewerDropdown(true);
-                      }}
-                      placeholder="Search reviewers by name or email..."
-                      disabled={assigningReviewer}
-                      className={styles.formInput}
-                    />
-                    {showReviewerDropdown && (
-                      <div className={styles.reviewerDropdown}>
-                        {loadingReviewers ? (
-                          <div className={styles.dropdownItem}>
-                            <span className="material-symbols-rounded">hourglass_empty</span>
-                            Loading reviewers...
-                          </div>
-                        ) : filteredReviewers.length > 0 ? (
-                          filteredReviewers.map((reviewer) => (
-                            <div
-                              key={reviewer.id}
-                              className={styles.dropdownItem}
-                              onClick={() => handleSelectReviewer(reviewer)}
-                            >
-                              <div className={styles.reviewerAvatarSmall}>
-                                {getInitials(reviewer.name)}
-                              </div>
-                              <div className={styles.dropdownItemContent}>
-                                <p className={styles.dropdownItemName}>{reviewer.name}</p>
-                                <p className={styles.dropdownItemEmail}>{reviewer.email}</p>
-                                {reviewer.specialization && (
-                                  <p className={styles.dropdownItemSpec}>{reviewer.specialization}</p>
-                                )}
-                              </div>
+                {/* Existing Reviewer Search Mode */}
+                {inviteMode === 'existing' && (
+                  <div className={styles.formGroup}>
+                    <label htmlFor="reviewerEmail">Select Reviewer</label>
+                    <div className={styles.reviewerInputContainer}>
+                      <input
+                        type="text"
+                        id="reviewerEmail"
+                        value={searchReviewers}
+                        onChange={(e) => {
+                          setSearchReviewers(e.target.value);
+                          setShowReviewerDropdown(true);
+                        }}
+                        onFocus={() => {
+                          if (!availableReviewers.length) {
+                            fetchAvailableReviewers();
+                          }
+                          setShowReviewerDropdown(true);
+                        }}
+                        placeholder="Search reviewers by name or email..."
+                        disabled={assigningReviewer}
+                        className={styles.formInput}
+                      />
+                      {showReviewerDropdown && (
+                        <div className={styles.reviewerDropdown}>
+                          {loadingReviewers ? (
+                            <div className={styles.dropdownItem}>
+                              <span className="material-symbols-rounded">hourglass_empty</span>
+                              Loading reviewers...
                             </div>
-                          ))
-                        ) : (
-                          <div className={styles.dropdownItem}>
-                            <span className="material-symbols-rounded">search_off</span>
-                            No reviewers found
-                          </div>
-                        )}
+                          ) : filteredReviewers.length > 0 ? (
+                            filteredReviewers.map((reviewer) => (
+                              <div
+                                key={reviewer.id}
+                                className={styles.dropdownItem}
+                                onClick={() => handleSelectReviewer(reviewer)}
+                              >
+                                <div className={styles.reviewerAvatarSmall}>
+                                  {getInitials(reviewer.name)}
+                                </div>
+                                <div className={styles.dropdownItemContent}>
+                                  <p className={styles.dropdownItemName}>{reviewer.name}</p>
+                                  <p className={styles.dropdownItemEmail}>{reviewer.email}</p>
+                                  {reviewer.specialization && (
+                                    <p className={styles.dropdownItemSpec}>{reviewer.specialization}</p>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className={styles.dropdownItem}>
+                              <span className="material-symbols-rounded">search_off</span>
+                              No reviewers found
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {reviewerEmail && (
+                      <div className={styles.selectedReviewerCard}>
+                        <div className={styles.selectedReviewerAvatar}>
+                          {getInitials(searchReviewers || reviewerEmail)}
+                        </div>
+                        <div className={styles.selectedReviewerInfo}>
+                          <p className={styles.selectedReviewerName}>{searchReviewers || 'Unknown'}</p>
+                          <p className={styles.selectedReviewerEmail}>{reviewerEmail}</p>
+                        </div>
+                        <button 
+                          className={styles.clearSelection}
+                          onClick={() => {
+                            setReviewerEmail('');
+                            setSearchReviewers('');
+                          }}
+                        >
+                          <span className="material-symbols-rounded">close</span>
+                        </button>
                       </div>
                     )}
                   </div>
-                  {reviewerEmail && (
-                    <div className={styles.selectedReviewerCard}>
-                      <div className={styles.selectedReviewerAvatar}>
-                        {getInitials(searchReviewers || reviewerEmail)}
-                      </div>
-                      <div className={styles.selectedReviewerInfo}>
-                        <p className={styles.selectedReviewerName}>{searchReviewers || 'Unknown'}</p>
-                        <p className={styles.selectedReviewerEmail}>{reviewerEmail}</p>
-                      </div>
-                      <button 
-                        className={styles.clearSelection}
-                        onClick={() => {
-                          setReviewerEmail('');
-                          setSearchReviewers('');
+                )}
+
+                {/* External Reviewer Invite Mode */}
+                {inviteMode === 'external' && (
+                  <>
+                    <div className={styles.formGroup}>
+                      <label htmlFor="externalEmail">Email Address *</label>
+                      <input
+                        type="email"
+                        id="externalEmail"
+                        value={externalEmail}
+                        onChange={(e) => {
+                          setExternalEmail(e.target.value);
+                          // Clear error when typing
+                          if (emailError) setEmailError('');
                         }}
-                      >
-                        <span className="material-symbols-rounded">close</span>
-                      </button>
+                        onBlur={() => {
+                          // Validate email on blur
+                          if (externalEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(externalEmail)) {
+                            setEmailError('Please enter a valid email address');
+                          }
+                        }}
+                        placeholder="reviewer@university.edu"
+                        disabled={assigningReviewer}
+                        className={`${styles.formInput} ${emailError ? styles.formInputError : ''}`}
+                      />
+                      {emailError && (
+                        <p className={styles.formError}>{emailError}</p>
+                      )}
                     </div>
-                  )}
-                </div>
+                    <div className={styles.formGroup}>
+                      <label htmlFor="externalName">Name (Optional)</label>
+                      <input
+                        type="text"
+                        id="externalName"
+                        value={externalName}
+                        onChange={(e) => setExternalName(e.target.value)}
+                        placeholder="Dr. John Smith"
+                        disabled={assigningReviewer}
+                        className={styles.formInput}
+                      />
+                    </div>
+                    <div className={styles.externalInviteInfo}>
+                      <span className="material-symbols-rounded">info</span>
+                      <p>An invitation email will be sent with a link to create an account. Once registered, they will be able to review this paper.</p>
+                    </div>
+                  </>
+                )}
 
                 <div className={styles.formGroup}>
                   <label htmlFor="dueDays">Review Due In (Days)</label>
@@ -1492,6 +1606,10 @@ const PaperDetailsPage = () => {
                       setShowAssignReviewer(false);
                       setReviewerEmail('');
                       setSearchReviewers('');
+                      setExternalEmail('');
+                      setExternalName('');
+                      setEmailError('');
+                      setInviteMode('existing');
                       setShowReviewerDropdown(false);
                     }}
                     disabled={assigningReviewer}
@@ -1501,7 +1619,7 @@ const PaperDetailsPage = () => {
                   <button
                     className={styles.btnPrimary}
                     onClick={handleAssignReviewer}
-                    disabled={assigningReviewer || !reviewerEmail}
+                    disabled={assigningReviewer || (inviteMode === 'existing' ? !reviewerEmail : !externalEmail || !!emailError)}
                   >
                     {assigningReviewer ? (
                       <>

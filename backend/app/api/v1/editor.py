@@ -708,24 +708,47 @@ async def invite_reviewer(
                 }
             )
     
-    # Check if already invited (optional - customize as needed)
-    existing_review = db.query(OnlineReview).filter(
-        OnlineReview.paper_id == str(paper_id),
-        OnlineReview.reviewer_id == str(reviewer.id)
-    ).first()
-    
-    if existing_review:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "error": "Already invited",
-                "message": f"Reviewer {reviewer_email} is already assigned to this paper",
-                "reviewer_email": reviewer_email,
-                "paper_id": paper_id,
-                "review_id": existing_review.id,
-                "fix": "Choose a different reviewer or remove the existing assignment"
-            }
-        )
+    # Check if already invited/assigned
+    if reviewer:
+        # For existing users, check OnlineReview table
+        existing_review = db.query(OnlineReview).filter(
+            OnlineReview.paper_id == str(paper_id),
+            OnlineReview.reviewer_id == str(reviewer.id)
+        ).first()
+        
+        if existing_review:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "Already invited",
+                    "message": f"Reviewer {reviewer_email} is already assigned to this paper",
+                    "reviewer_email": reviewer_email,
+                    "paper_id": paper_id,
+                    "review_id": existing_review.id,
+                    "fix": "Choose a different reviewer or remove the existing assignment"
+                }
+            )
+    else:
+        # For external reviewers, check ReviewerInvitation table by email
+        existing_invitation = db.query(ReviewerInvitation).filter(
+            ReviewerInvitation.paper_id == paper_id,
+            ReviewerInvitation.reviewer_email == reviewer_email,
+            ReviewerInvitation.status.in_(["pending", "accepted"])
+        ).first()
+        
+        if existing_invitation:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "Already invited",
+                    "message": f"An invitation has already been sent to {reviewer_email} for this paper",
+                    "reviewer_email": reviewer_email,
+                    "paper_id": paper_id,
+                    "invitation_id": existing_invitation.id,
+                    "invitation_status": existing_invitation.status,
+                    "fix": "Wait for the reviewer to respond or choose a different reviewer"
+                }
+            )
     
     # Prepare invitation data
     reviewer_name = f"{reviewer.fname} {reviewer.lname or ''}".strip() if reviewer else reviewer_email.split('@')[0].title()
