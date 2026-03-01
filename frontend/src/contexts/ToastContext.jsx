@@ -1,4 +1,5 @@
-import React, { createContext, useState, useCallback } from 'react';
+import React, { createContext, useState, useCallback, useEffect } from 'react';
+import { setToastHandler } from '../utils/toast';
 
 export const ToastContext = createContext(null);
 
@@ -10,6 +11,11 @@ export const ToastProvider = ({ children }) => {
     setToasts((prevToasts) => [...prevToasts, { id, message, type, duration }]);
     return id;
   }, []);
+
+  // Register global toast handler for use outside React
+  useEffect(() => {
+    setToastHandler(addToast);
+  }, [addToast]);
 
   const removeToast = useCallback((id) => {
     setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));

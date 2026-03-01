@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from '../utils/toast';
 
 // Create axios instance with base configuration
 const apiClient = axios.create({
@@ -90,7 +91,10 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
         isRefreshing = false;
-        window.location.href = '/login';
+        toast.warning('Session expired. Please login again.');
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
         return Promise.reject(error);
       }
       
@@ -127,7 +131,10 @@ apiClient.interceptors.response.use(
         
         // Redirect to login only if not already there
         if (!window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
+          toast.warning('Session expired. Please login again.');
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1500);
         }
         
         return Promise.reject(refreshError);
