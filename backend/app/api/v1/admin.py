@@ -2061,7 +2061,7 @@ async def send_paper_correspondence(
 @limiter.limit("5/minute")
 async def test_email_configuration(
     request: Request,
-    to_email: str = Body(..., description="Email address to send test email"),
+    to_email: str = Query(..., description="Email address to send test email"),
     current_user: dict = Depends(get_current_user),
 ):
     """
