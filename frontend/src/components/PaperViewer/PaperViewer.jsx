@@ -59,24 +59,17 @@ const PaperViewer = ({ paper, reviewId }) => {
         <h2 className={styles.title}>{paper.title || 'Untitled Paper'}</h2>
         <div className={styles.metadata}>
           <div className={styles.metaItem}>
-            <span className="material-symbols-rounded">person</span>
+            <span className="material-symbols-rounded">book</span>
             <div>
-              <p className={styles.metaLabel}>Author</p>
-              <p className={styles.metaValue}>{paper.author?.name || 'Unknown'}</p>
+              <p className={styles.metaLabel}>Journal</p>
+              <p className={styles.metaValue}>{paper.journal || 'Unknown'}</p>
             </div>
           </div>
           <div className={styles.metaItem}>
-            <span className="material-symbols-rounded">mail</span>
+            <span className="material-symbols-rounded">calendar_today</span>
             <div>
-              <p className={styles.metaLabel}>Email</p>
-              <p className={styles.metaValue}>{paper.author?.email || 'N/A'}</p>
-            </div>
-          </div>
-          <div className={styles.metaItem}>
-            <span className="material-symbols-rounded">location_city</span>
-            <div>
-              <p className={styles.metaLabel}>Affiliation</p>
-              <p className={styles.metaValue}>{paper.author?.affiliation || 'N/A'}</p>
+              <p className={styles.metaLabel}>Submitted</p>
+              <p className={styles.metaValue}>{paper.submitted_date ? new Date(paper.submitted_date).toLocaleDateString() : 'N/A'}</p>
             </div>
           </div>
         </div>
@@ -143,24 +136,6 @@ const PaperViewer = ({ paper, reviewId }) => {
                 </span>
               ))}
             </div>
-          </section>
-        )}
-
-        {/* Journal */}
-        {paper.journal && (
-          <section className={styles.section}>
-            <h3 className={styles.sectionTitle}>Journal</h3>
-            <p className={styles.sectionContent}>{typeof paper.journal === 'object' ? paper.journal?.name : paper.journal}</p>
-          </section>
-        )}
-
-        {/* Submitted Date */}
-        {paper.submitted_date && (
-          <section className={styles.section}>
-            <h3 className={styles.sectionTitle}>Submitted</h3>
-            <p className={styles.sectionContent}>
-              {new Date(paper.submitted_date).toLocaleDateString()}
-            </p>
           </section>
         )}
       </div>

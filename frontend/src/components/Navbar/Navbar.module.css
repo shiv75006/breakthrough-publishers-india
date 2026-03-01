@@ -66,6 +66,13 @@
   white-space: nowrap;
 }
 
+.logoTextShort {
+  display: none;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0D4715;
+}
+
 .logo {
   height: 36px;
   width: auto;
@@ -385,9 +392,106 @@
 
 /* ==================== RESPONSIVE ==================== */
 
+/* Mobile Menu Button */
+.mobileMenuBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+
+.mobileMenuBtn:hover {
+  background: var(--bg-light);
+}
+
+.mobileMenuBtn .material-symbols-rounded {
+  font-size: 1.5rem;
+}
+
+/* Mobile Menu */
+.mobileMenu {
+  position: absolute;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  background: var(--bg-white);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  padding: 1rem;
+  z-index: 999;
+}
+
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobileNavLink {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.mobileNavLink:hover {
+  background: var(--bg-light);
+  color: var(--primary);
+}
+
+.mobileRoleSwitcher {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.desktopOnly {
+  display: block;
+}
+
 @media (max-width: 900px) {
   .headerNav {
     display: none;
+  }
+  
+  .mobileMenuBtn {
+    display: flex;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktopOnly {
+    display: none;
+  }
+  
+  .logoText {
+    display: none;
+  }
+  
+  .logoTextShort {
+    display: block;
+  }
+  
+  .authButtons {
+    gap: 0.25rem;
+  }
+  
+  .loginBtn,
+  .signupBtn {
+    padding: 0.4rem 0.75rem;
+    font-size: 13px;
   }
 }
 
@@ -403,5 +507,19 @@
   .portalBadge {
     font-size: 0.65rem;
     padding: 0.2rem 0.5rem;
+  }
+  
+  .userButton {
+    padding: 0.25rem;
+  }
+  
+  .avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+  }
+  
+  .userButton .material-symbols-rounded {
+    display: none;
   }
 }

@@ -98,8 +98,6 @@ async def get_pending_invitations(
         invitations_list = []
         for invitation in invitations:
             paper = db.query(Paper).filter(Paper.id == invitation.paper_id).first()
-            # added_by stores user ID, not email
-            author = db.query(User).filter(User.id == int(paper.added_by)).first() if paper and paper.added_by and paper.added_by.isdigit() else None
             
             # Get journal name from journal table
             journal = None
@@ -111,7 +109,6 @@ async def get_pending_invitations(
                 "invitation_token": invitation.invitation_token,
                 "paper_id": invitation.paper_id,
                 "paper_title": paper.title if paper else "Unknown",
-                "author": f"{author.fname} {author.lname or ''}".strip() if author else "Unknown",
                 "journal": journal.fld_journal_name if journal else "Unknown",
                 "invited_on": invitation.invited_on.isoformat() if invitation.invited_on else None,
                 "token_expiry": invitation.token_expiry.isoformat() if invitation.token_expiry else None,
@@ -420,11 +417,6 @@ async def list_assignments(
         for review in reviews:
             paper = db.query(Paper).filter(Paper.id == review.paper_id).first()
             
-            # Get author info - added_by stores user ID, not email
-            author = None
-            if paper and paper.added_by and paper.added_by.isdigit():
-                author = db.query(User).filter(User.id == int(paper.added_by)).first()
-            
             # Get journal name from journal table
             journal = None
             if paper and paper.journal:
@@ -438,11 +430,11 @@ async def list_assignments(
             # Check if this is a re-review (version > 1 and status is pending)
             is_resubmission = paper.version_number > 1 if paper else False
             
+            # Note: Author info intentionally hidden for blind review
             assignments_list.append({
                 "id": review.id,
                 "paper_id": review.paper_id,
                 "paper_title": paper.title if paper else "Unknown",
-                "author": f"{author.fname} {author.lname or ''}".strip() if author else "Unknown",
                 "journal": journal.fld_journal_name if journal else "Unknown",
                 "assigned_date": review.assigned_on.isoformat() if review.assigned_on else None,
                 "due_date": due_date,
@@ -496,12 +488,10 @@ async def get_assignment_detail(
         if not paper:
             raise HTTPException(status_code=404, detail="Paper not found")
         
-        # added_by stores user ID, not email
-        author = db.query(User).filter(User.id == int(paper.added_by)).first() if paper.added_by and paper.added_by.isdigit() else None
-        
         # Get journal name from journal table
         journal = db.query(Journal).filter(Journal.fld_id == paper.journal).first() if paper.journal else None
         
+        # Note: Author info intentionally hidden for blind review
         return {
             "review_id": review.id,
             "paper": {
@@ -509,11 +499,6 @@ async def get_assignment_detail(
                 "title": paper.title,
                 "abstract": paper.abstract,
                 "keywords": paper.keyword,
-                "author": {
-                    "name": f"{author.fname} {author.lname or ''}".strip() if author else "Unknown",
-                    "email": author.email if author else None,
-                    "affiliation": author.affiliation if author else None
-                },
                 "journal": journal.fld_journal_name if journal else "Unknown",
                 "submitted_date": paper.added_on.isoformat() if paper.added_on else None,
                 "file_url": f"/static/{paper.file}" if paper.file else None

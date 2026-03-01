@@ -16,6 +16,7 @@ const Navbar = ({ sections = [], portalName = "Portal" }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Use activeRole for display, fall back to user.role
   const displayRole = activeRole || user?.role?.toLowerCase();
@@ -64,6 +65,7 @@ const Navbar = ({ sections = [], portalName = "Portal" }) => {
           <div className={styles.headerLeft}>
             <Link className={styles.brand} to="/">
               <span className={styles.logoText}>Breakthrough Publishers India</span>
+              <span className={styles.logoTextShort}>BPI</span>
             </Link>
             {sections.length > 0 && (
               <span className={styles.portalBadge}>{portalName}</span>
@@ -84,7 +86,9 @@ const Navbar = ({ sections = [], portalName = "Portal" }) => {
           <div className={styles.headerRight}>
             {isAuthenticated ? (
               <>
-                <RoleSwitcher />
+                <div className={styles.desktopOnly}>
+                  <RoleSwitcher />
+                </div>
                 <div className={styles.userMenu}>
                   <button 
                     className={styles.userButton}
@@ -120,8 +124,38 @@ const Navbar = ({ sections = [], portalName = "Portal" }) => {
                 <Link to="/signup" className={styles.signupBtn}>Sign Up</Link>
               </div>
             )}
+
+            {/* Mobile menu button */}
+            <button 
+              className={styles.mobileMenuBtn}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              <span className="material-symbols-rounded">
+                {mobileMenuOpen ? 'close' : 'menu'}
+              </span>
+            </button>
           </div>
         </div>
+
+        {/* Mobile menu dropdown */}
+        {mobileMenuOpen && (
+          <div className={styles.mobileMenu}>
+            <nav className={styles.mobileNav}>
+              <Link className={styles.mobileNavLink} to="/" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+              <Link className={styles.mobileNavLink} to="/journals" onClick={() => setMobileMenuOpen(false)}>Journals</Link>
+              <Link className={styles.mobileNavLink} to="/submit" onClick={() => setMobileMenuOpen(false)}>Submit Paper</Link>
+              {isAuthenticated && displayRole && (
+                <Link className={styles.mobileNavLink} to={getDashboardPath()} onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
+              )}
+            </nav>
+            {isAuthenticated && (
+              <div className={styles.mobileRoleSwitcher}>
+                <RoleSwitcher />
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Sidebar - Icon only with tooltips */}

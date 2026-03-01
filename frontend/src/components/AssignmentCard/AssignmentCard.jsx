@@ -54,10 +54,6 @@ const AssignmentCard = ({ assignment, onStartReview }) => {
               <span className="material-symbols-rounded">calendar_today</span>
               Due: {new Date(assignment.due_date).toLocaleDateString()}
             </span>
-            <span className={styles.metaItem}>
-              <span className="material-symbols-rounded">person</span>
-              {assignment.author || 'Unknown Author'}
-            </span>
             <span className={styles.paperTypeChip}>
               {paperType}
             </span>

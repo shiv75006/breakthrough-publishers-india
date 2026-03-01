@@ -8,8 +8,8 @@
 
 .tabs {
   display: flex;
-  border-bottom: 2px solid #c8e6c9;
-  background: linear-gradient(to bottom, #f0f9f1, #E8F5E9);
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
   flex-shrink: 0;
 }
 
@@ -21,7 +21,7 @@
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
-  color: #41644A;
+  color: #64748b;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -31,23 +31,23 @@
 }
 
 .tab:hover {
-  color: #0D4715;
-  background: rgba(13, 71, 21, 0.05);
+  color: #475569;
+  background: rgba(0, 0, 0, 0.02);
 }
 
 .tab.active {
-  color: #0D4715;
+  color: #166534;
   background: white;
 }
 
 .tab.active::after {
   content: '';
   position: absolute;
-  bottom: -2px;
+  bottom: -1px;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #0D4715, #41644A);
+  height: 2px;
+  background: #166534;
   border-radius: 2px 2px 0 0;
 }
 
@@ -65,16 +65,16 @@
 }
 
 .tabContent::-webkit-scrollbar-track {
-  background: #E8F5E9;
+  background: #f1f5f9;
 }
 
 .tabContent::-webkit-scrollbar-thumb {
-  background: #41644A;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 .tabContent::-webkit-scrollbar-thumb:hover {
-  background: #0D4715;
+  background: #94a3b8;
 }
 
 /* Ratings Tab */
@@ -92,7 +92,7 @@
 
 .ratingItem label {
   font-weight: 600;
-  color: #0D4715;
+  color: #1e293b;
   font-size: 14px;
 }
 
@@ -105,13 +105,13 @@
 .ratingBtn {
   width: 48px;
   height: 48px;
-  border: 2px solid #c8e6c9;
+  border: 2px solid #e2e8f0;
   background: white;
   border-radius: 10px;
   cursor: pointer;
   font-size: 15px;
   font-weight: 700;
-  color: #41644A;
+  color: #64748b;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -119,16 +119,16 @@
 }
 
 .ratingBtn:hover {
-  border-color: #0D4715;
-  color: #0D4715;
-  background: #E8F5E9;
+  border-color: #94a3b8;
+  color: #475569;
+  background: #f8fafc;
   transform: translateY(-2px);
 }
 
 .ratingBtn.selected {
-  background: linear-gradient(135deg, #0D4715 0%, #1a5c23 100%);
+  background: #166534;
   color: white;
-  border-color: #0D4715;
+  border-color: #166534;
 }
 
 .recommendationSection {
@@ -142,13 +142,13 @@
 
 .recommendationSection label {
   font-weight: 600;
-  color: #0D4715;
+  color: #1e293b;
   font-size: 14px;
 }
 
 .select {
   padding: 14px 16px;
-  border: 2px solid #c8e6c9;
+  border: 2px solid #e2e8f0;
   border-radius: 10px;
   font-size: 14px;
   color: #1e293b;
@@ -156,7 +156,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2341644A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 18px;
@@ -164,12 +164,12 @@
 }
 
 .select:hover {
-  border-color: #41644A;
+  border-color: #94a3b8;
 }
 
 .select:focus {
   outline: none;
-  border-color: #0D4715;
+  border-color: #166534;
 }
 
 /* Comments Tab */
@@ -187,20 +187,20 @@
 
 .commentSection label {
   font-weight: 600;
-  color: #0D4715;
+  color: #1e293b;
   font-size: 14px;
 }
 
 .hint {
   font-size: 12px;
-  color: #41644A;
+  color: #64748b;
   margin: 0;
   line-height: 1.4;
 }
 
 .textarea {
   padding: 14px 16px;
-  border: 2px solid #c8e6c9;
+  border: 2px solid #e2e8f0;
   border-radius: 10px;
   font-size: 14px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -212,28 +212,28 @@
 }
 
 .textarea:hover {
-  border-color: #41644A;
+  border-color: #94a3b8;
 }
 
 .textarea:focus {
   outline: none;
-  border-color: #0D4715;
+  border-color: #166534;
 }
 
 .charCount {
   font-size: 12px;
-  color: #41644A;
+  color: #64748b;
   margin: 4px 0 0 0;
   text-align: right;
 }
 
 .totalChars {
   padding: 14px 16px;
-  background: linear-gradient(135deg, #E8F5E9 0%, #c8e6c9 100%);
-  border-left: 4px solid #0D4715;
+  background: #f8fafc;
+  border-left: 4px solid #166534;
   border-radius: 8px;
   font-size: 13px;
-  color: #0D4715;
+  color: #475569;
   font-weight: 600;
 }
 
@@ -252,20 +252,20 @@
 
 .uploadLabel {
   font-weight: 600;
-  color: #0D4715;
+  color: #1e293b;
   font-size: 14px;
   margin: 0;
 }
 
 .uploadHint {
   font-size: 12px;
-  color: #41644A;
+  color: #64748b;
   margin: 0;
   line-height: 1.4;
 }
 
 .uploadArea {
-  border: 2px dashed #41644A;
+  border: 2px dashed #cbd5e1;
   border-radius: 12px;
   padding: 48px 24px;
   cursor: pointer;
@@ -274,28 +274,28 @@
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  background: #f0f9f1;
+  background: #f8fafc;
 }
 
 .uploadArea:hover {
-  border-color: #0D4715;
-  background: #E8F5E9;
+  border-color: #94a3b8;
+  background: #f1f5f9;
 }
 
 .uploadArea.dragOver {
-  border-color: #0D4715;
-  background: #c8e6c9;
+  border-color: #166534;
+  background: #f0fdf4;
   border-style: solid;
 }
 
 .uploadArea .material-symbols-rounded {
   font-size: 48px;
-  color: #0D4715;
+  color: #94a3b8;
 }
 
 .uploadArea p {
   font-size: 14px;
-  color: #41644A;
+  color: #64748b;
   text-align: center;
   margin: 0;
   line-height: 1.5;
@@ -303,7 +303,7 @@
 
 .uploading {
   font-size: 14px;
-  color: #0D4715;
+  color: #475569;
   text-align: center;
   font-weight: 500;
 }
@@ -396,8 +396,8 @@
   display: flex;
   gap: 12px;
   padding: 20px 24px;
-  border-top: 1px solid #c8e6c9;
-  background: linear-gradient(to bottom, #f0f9f1, #E8F5E9);
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
   flex-shrink: 0;
 }
 
@@ -419,14 +419,14 @@
 
 .saveDraftBtn {
   background: white;
-  color: #41644A;
-  border: 2px solid #c8e6c9;
+  color: #64748b;
+  border: 2px solid #e2e8f0;
 }
 
 .saveDraftBtn:hover:not(:disabled) {
-  background: #f0f9f1;
-  border-color: #41644A;
-  color: #0D4715;
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #475569;
 }
 
 .saveDraftBtn:disabled {
@@ -440,18 +440,18 @@
 }
 
 .submitBtn {
-  background: linear-gradient(135deg, #0D4715 0%, #1a5c23 100%);
+  background: #166534;
   color: white;
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1a5c23 0%, #0D4715 100%);
+  background: #15803d;
   transform: translateY(-1px);
 }
 
 .submitBtn:disabled {
-  background: #c8e6c9;
-  color: #64748b;
+  background: #e2e8f0;
+  color: #94a3b8;
   opacity: 1;
   cursor: not-allowed;
   transform: none;
