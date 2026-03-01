@@ -756,8 +756,8 @@ async def invite_reviewer(
     paper_abstract = paper.abstract or "No abstract provided"
     
     # Get journal name from Journal table (paper.journal is an integer ID)
-    journal_obj = db.query(Journal).filter(Journal.id == paper.journal).first()
-    journal_name = journal_obj.name if journal_obj else "Breakthrough Publishers India Journal"
+    journal_obj = db.query(Journal).filter(Journal.fld_id == paper.journal).first()
+    journal_name = journal_obj.fld_journal_name if journal_obj else "AACS Journals"
     
     # Calculate due date
     due_date = (datetime.utcnow() + timedelta(days=due_days)).strftime("%B %d, %Y")
@@ -2458,8 +2458,8 @@ async def get_invitation_status(
     paper_abstract = paper.abstract[:500] + "..." if paper and paper.abstract and len(paper.abstract) > 500 else (paper.abstract if paper else "")
     
     # Get journal name
-    journal = db.query(Journal).filter(Journal.id == invitation.journal_id).first() if invitation.journal_id else None
-    journal_name = journal.name if journal else "Breakthrough Publishers India Journal"
+    journal = db.query(Journal).filter(Journal.fld_id == invitation.journal_id).first() if invitation.journal_id else None
+    journal_name = journal.fld_journal_name if journal else "AACS Journals"
     
     return {
         "id": invitation.id,
