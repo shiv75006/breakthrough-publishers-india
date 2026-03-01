@@ -2162,18 +2162,21 @@ async def view_paper_title_page(
     from fastapi.responses import FileResponse
     from app.utils.file_handler import get_file_full_path
     
-    if not check_role(current_user.get("role"), "editor"):
-        raise HTTPException(status_code=403, detail="Editor access required")
+    user_role = current_user.get("role", "").lower()
+    if not check_role(user_role, ["editor", "admin"]):
+        raise HTTPException(status_code=403, detail="Editor or Admin access required")
     
-    # Verify editor has access to this paper's journal
+    # Verify editor has access to this paper's journal (admins have full access)
     paper = db.query(Paper).filter(Paper.id == paper_id).first()
     
     if not paper:
         raise HTTPException(status_code=404, detail="Paper not found")
     
-    editor_journal_ids = get_editor_journal_ids(current_user.get("email"), db)
-    if paper.journal not in editor_journal_ids:
-        raise HTTPException(status_code=403, detail="You don't have access to this paper's journal")
+    # Admins can access all papers, editors need journal access
+    if user_role != "admin":
+        editor_journal_ids = get_editor_journal_ids(current_user.get("email"), db)
+        if paper.journal not in editor_journal_ids:
+            raise HTTPException(status_code=403, detail="You don't have access to this paper's journal")
     
     # Use title_page if available, fall back to file
     file_path = paper.title_page or paper.file
@@ -2224,18 +2227,21 @@ async def view_paper_blinded_manuscript(
     from fastapi.responses import FileResponse
     from app.utils.file_handler import get_file_full_path
     
-    if not check_role(current_user.get("role"), "editor"):
-        raise HTTPException(status_code=403, detail="Editor access required")
+    user_role = current_user.get("role", "").lower()
+    if not check_role(user_role, ["editor", "admin"]):
+        raise HTTPException(status_code=403, detail="Editor or Admin access required")
     
-    # Verify editor has access to this paper's journal
+    # Verify editor has access to this paper's journal (admins have full access)
     paper = db.query(Paper).filter(Paper.id == paper_id).first()
     
     if not paper:
         raise HTTPException(status_code=404, detail="Paper not found")
     
-    editor_journal_ids = get_editor_journal_ids(current_user.get("email"), db)
-    if paper.journal not in editor_journal_ids:
-        raise HTTPException(status_code=403, detail="You don't have access to this paper's journal")
+    # Admins can access all papers, editors need journal access
+    if user_role != "admin":
+        editor_journal_ids = get_editor_journal_ids(current_user.get("email"), db)
+        if paper.journal not in editor_journal_ids:
+            raise HTTPException(status_code=403, detail="You don't have access to this paper's journal")
     
     # Use blinded_manuscript if available, fall back to file
     file_path = paper.blinded_manuscript or paper.file
@@ -2280,16 +2286,19 @@ async def view_paper_track_changes(
     from fastapi.responses import FileResponse
     from app.utils.file_handler import get_file_full_path
     
-    if not check_role(current_user.get("role"), "editor"):
-        raise HTTPException(status_code=403, detail="Editor access required")
+    user_role = current_user.get("role", "").lower()
+    if not check_role(user_role, ["editor", "admin"]):
+        raise HTTPException(status_code=403, detail="Editor or Admin access required")
     
     paper = db.query(Paper).filter(Paper.id == paper_id).first()
     if not paper:
         raise HTTPException(status_code=404, detail="Paper not found")
     
-    editor_journal_ids = get_editor_journal_ids(current_user.get("email"), db)
-    if paper.journal not in editor_journal_ids:
-        raise HTTPException(status_code=403, detail="You don't have access to this paper's journal")
+    # Admins can access all papers, editors need journal access
+    if user_role != "admin":
+        editor_journal_ids = get_editor_journal_ids(current_user.get("email"), db)
+        if paper.journal not in editor_journal_ids:
+            raise HTTPException(status_code=403, detail="You don't have access to this paper's journal")
     
     file_path = paper.revised_track_changes
     if not file_path:
@@ -2319,16 +2328,19 @@ async def view_paper_clean_revision(
     from fastapi.responses import FileResponse
     from app.utils.file_handler import get_file_full_path
     
-    if not check_role(current_user.get("role"), "editor"):
-        raise HTTPException(status_code=403, detail="Editor access required")
+    user_role = current_user.get("role", "").lower()
+    if not check_role(user_role, ["editor", "admin"]):
+        raise HTTPException(status_code=403, detail="Editor or Admin access required")
     
     paper = db.query(Paper).filter(Paper.id == paper_id).first()
     if not paper:
         raise HTTPException(status_code=404, detail="Paper not found")
     
-    editor_journal_ids = get_editor_journal_ids(current_user.get("email"), db)
-    if paper.journal not in editor_journal_ids:
-        raise HTTPException(status_code=403, detail="You don't have access to this paper's journal")
+    # Admins can access all papers, editors need journal access
+    if user_role != "admin":
+        editor_journal_ids = get_editor_journal_ids(current_user.get("email"), db)
+        if paper.journal not in editor_journal_ids:
+            raise HTTPException(status_code=403, detail="You don't have access to this paper's journal")
     
     file_path = paper.revised_clean
     if not file_path:
@@ -2358,16 +2370,19 @@ async def view_paper_response_to_reviewer(
     from fastapi.responses import FileResponse
     from app.utils.file_handler import get_file_full_path
     
-    if not check_role(current_user.get("role"), "editor"):
-        raise HTTPException(status_code=403, detail="Editor access required")
+    user_role = current_user.get("role", "").lower()
+    if not check_role(user_role, ["editor", "admin"]):
+        raise HTTPException(status_code=403, detail="Editor or Admin access required")
     
     paper = db.query(Paper).filter(Paper.id == paper_id).first()
     if not paper:
         raise HTTPException(status_code=404, detail="Paper not found")
     
-    editor_journal_ids = get_editor_journal_ids(current_user.get("email"), db)
-    if paper.journal not in editor_journal_ids:
-        raise HTTPException(status_code=403, detail="You don't have access to this paper's journal")
+    # Admins can access all papers, editors need journal access
+    if user_role != "admin":
+        editor_journal_ids = get_editor_journal_ids(current_user.get("email"), db)
+        if paper.journal not in editor_journal_ids:
+            raise HTTPException(status_code=403, detail="You don't have access to this paper's journal")
     
     file_path = paper.response_to_reviewer
     if not file_path:
