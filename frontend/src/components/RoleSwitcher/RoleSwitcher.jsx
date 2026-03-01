@@ -68,16 +68,24 @@ const RoleSwitcher = () => {
 
     try {
       setSwitching(true);
-      await switchRole(newRole);
-      setIsOpen(false);
       
-      // Navigate to the new role's dashboard
+      // Navigate to the new role's dashboard FIRST (optimistically)
+      // This prevents the protected route from redirecting to home
       const config = ROLE_CONFIG[newRole];
       if (config?.dashboardPath) {
-        navigate(config.dashboardPath);
+        navigate(config.dashboardPath, { replace: true });
       }
+      
+      // Then complete the role switch API call
+      await switchRole(newRole);
+      setIsOpen(false);
     } catch (err) {
       console.error('Failed to switch role:', err);
+      // If role switch fails, go back to current role's dashboard
+      const currentConfig = ROLE_CONFIG[activeRole?.toLowerCase()];
+      if (currentConfig?.dashboardPath) {
+        navigate(currentConfig.dashboardPath, { replace: true });
+      }
     } finally {
       setSwitching(false);
     }

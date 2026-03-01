@@ -449,7 +449,8 @@ async def list_assignments(
                 "status": review.review_status or "pending",
                 "paper_version": paper.version_number if paper else 1,
                 "is_resubmission": is_resubmission,
-                "paper_status": paper.status if paper else "unknown"
+                "paper_status": paper.status if paper else "unknown",
+                "paper_type": paper.paper_type if paper else "Full Length Article"
             })
         
         return {

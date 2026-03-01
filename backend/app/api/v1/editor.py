@@ -458,7 +458,8 @@ async def get_paper_queue(
             "assigned_reviewers": assigned_reviewers,
             "version_number": paper.version_number,
             "revision_count": paper.revision_count,
-            "research_area": paper.research_area
+            "research_area": paper.research_area,
+            "paper_type": paper.paper_type or "Full Length Article"
         })
     
     return {

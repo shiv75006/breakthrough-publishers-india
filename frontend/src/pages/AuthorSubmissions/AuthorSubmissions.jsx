@@ -10,7 +10,16 @@ import styles from './AuthorSubmissions.module.css';
 const AuthorSubmissions = () => {
   const [statusStats, setStatusStats] = useState({});
   const [statsLoading, setStatsLoading] = useState(true);
+  const [paperTypeFilter, setPaperTypeFilter] = useState('');
   const { success, error: showError } = useToast();
+
+  const PAPER_TYPES = [
+    'Full Length Article',
+    'Review Paper',
+    'Short Communication',
+    'Case Study',
+    'Technical Note'
+  ];
 
   // Custom fetch function for author's papers with filters
   const fetchPapersWithFilters = async (skip, limit, filters) => {
@@ -57,6 +66,11 @@ const AuthorSubmissions = () => {
     handleFilterChange('status', status);
   };
 
+  // Filter papers by paper type (client-side)
+  const filteredPapers = paperTypeFilter 
+    ? papers.filter(paper => paper.paper_type === paperTypeFilter)
+    : papers;
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -81,6 +95,20 @@ const AuthorSubmissions = () => {
               <option value="rejected">Rejected</option>
             </select>
           </div>
+          <div className={styles.filterGroup}>
+            <label>Filter by Paper Type:</label>
+            <select
+              value={paperTypeFilter}
+              onChange={(e) => setPaperTypeFilter(e.target.value)}
+              className={styles.filterSelect}
+              disabled={loading}
+            >
+              <option value="">All Paper Types</option>
+              {PAPER_TYPES.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -103,7 +131,7 @@ const AuthorSubmissions = () => {
       )}
 
       {/* Empty State */}
-      {!loading && !error && papers.length === 0 && (
+      {!loading && !error && filteredPapers.length === 0 && (
         <div className={styles.empty}>
           <span className="material-symbols-rounded">inbox</span>
           <h3>No submissions found</h3>
@@ -115,10 +143,10 @@ const AuthorSubmissions = () => {
       )}
 
       {/* Papers List */}
-      {!loading && papers.length > 0 && (
+      {!loading && filteredPapers.length > 0 && (
         <>
           <div className={styles.paperList}>
-            {papers.map(paper => (
+            {filteredPapers.map(paper => (
               <PaperCard
                 key={paper.id}
                 paper={paper}

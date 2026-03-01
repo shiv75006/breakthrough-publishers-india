@@ -9,17 +9,22 @@
 }
 
 .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 24px;
   margin-bottom: 32px;
 }
 
-.header h1 {
+.headerContent h1 {
   font-size: 30px;
   font-weight: 700;
   color: #0f172a;
   margin: 0;
 }
 
-.header p {
+.headerContent p {
   color: #64748b;
   margin: 4px 0 0 0;
   font-size: 14px;
@@ -68,6 +73,54 @@
 
 .error p {
   color: #dc2626;
+}
+
+/* Filter Section */
+.filterSection {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filterGroup label {
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.filterSelect {
+  padding: 8px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0f172a;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filterSelect:hover {
+  border-color: #94a3b8;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.filterSelect:disabled {
+  background: #f1f5f9;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* Paper List */

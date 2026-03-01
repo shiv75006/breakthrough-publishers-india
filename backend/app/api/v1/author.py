@@ -103,7 +103,8 @@ async def list_submissions(
             "abstract": paper.abstract,
             "status": paper.status,
             "submitted_date": paper.added_on.isoformat() if paper.added_on else None,
-            "journal": journal.fld_journal_name if journal else "Unknown"
+            "journal": journal.fld_journal_name if journal else "Unknown",
+            "paper_type": paper.paper_type or "Full Length Article"
         })
     
     return {

@@ -10,6 +10,7 @@ import styles from './AdminSubmissions.module.css';
 const AdminSubmissions = () => {
   const [statusStats, setStatusStats] = useState({});
   const [statsLoading, setStatsLoading] = useState(true);
+  const [paperTypeFilter, setPaperTypeFilter] = useState('');
   const { success, error: showError } = useToast();
 
   // Custom fetch function for papers with filters
@@ -53,11 +54,43 @@ const AdminSubmissions = () => {
     handleFilterChange('status', status);
   };
 
+  // Filter papers by paper type (client-side)
+  const filteredPapers = paperTypeFilter 
+    ? papers.filter(paper => paper.paper_type === paperTypeFilter)
+    : papers;
+
+  const PAPER_TYPES = [
+    'Full Length Article',
+    'Review Paper',
+    'Short Communication',
+    'Case Study',
+    'Technical Note'
+  ];
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>All Submissions</h1>
-        <p>View and manage all paper submissions</p>
+        <div className={styles.headerContent}>
+          <h1>All Submissions</h1>
+          <p>View and manage all paper submissions</p>
+        </div>
+        {/* Paper Type Filter */}
+        <div className={styles.filterSection}>
+          <div className={styles.filterGroup}>
+            <label>Filter by Paper Type:</label>
+            <select
+              value={paperTypeFilter}
+              onChange={(e) => setPaperTypeFilter(e.target.value)}
+              className={styles.filterSelect}
+              disabled={loading}
+            >
+              <option value="">All Paper Types</option>
+              {PAPER_TYPES.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Status Filter Bar */}
@@ -87,7 +120,7 @@ const AdminSubmissions = () => {
       )}
 
       {/* Empty State */}
-      {!loading && !error && papers.length === 0 && (
+      {!loading && !error && filteredPapers.length === 0 && (
         <div className={styles.empty}>
           <span className="material-symbols-rounded">inbox</span>
           <p>No submissions found</p>
@@ -95,10 +128,10 @@ const AdminSubmissions = () => {
       )}
 
       {/* Papers List */}
-      {!loading && papers.length > 0 && (
+      {!loading && filteredPapers.length > 0 && (
         <>
           <div className={styles.paperList}>
-            {papers.map(paper => (
+            {filteredPapers.map(paper => (
               <PaperCard
                 key={paper.id}
                 paper={paper}

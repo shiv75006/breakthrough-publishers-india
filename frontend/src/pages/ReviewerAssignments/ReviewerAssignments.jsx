@@ -12,6 +12,15 @@ const ReviewerAssignments = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [statusFilter, setStatusFilter] = useState('');
+  const [paperTypeFilter, setPaperTypeFilter] = useState('');
+
+  const PAPER_TYPES = [
+    'Full Length Article',
+    'Review Paper',
+    'Short Communication',
+    'Case Study',
+    'Technical Note'
+  ];
 
   const fetchAssignmentsWithFilters = useCallback(async (skip, limit, filters) => {
     return await acsApi.reviewer.listAssignments(skip, limit, '', filters.sort || 'due_soon');
@@ -49,7 +58,9 @@ const ReviewerAssignments = () => {
     
     const matchesStatus = !statusFilter || assignment.status === statusFilter;
     
-    return matchesSearch && matchesStatus;
+    const matchesPaperType = !paperTypeFilter || assignment.paper_type === paperTypeFilter;
+    
+    return matchesSearch && matchesStatus && matchesPaperType;
   });
 
   const handleStartReview = (assignmentId) => {
@@ -76,6 +87,20 @@ const ReviewerAssignments = () => {
               <option value="pending">Pending</option>
               <option value="in_progress">In Progress</option>
               <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div className={styles.filterGroup}>
+            <label>Filter by Paper Type:</label>
+            <select
+              value={paperTypeFilter}
+              onChange={(e) => setPaperTypeFilter(e.target.value)}
+              className={styles.filterSelect}
+              disabled={loading}
+            >
+              <option value="">All Paper Types</option>
+              {PAPER_TYPES.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
             </select>
           </div>
         </div>

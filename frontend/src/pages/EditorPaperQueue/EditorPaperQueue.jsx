@@ -11,6 +11,7 @@ const EditorPaperQueue = () => {
   const [statusStats, setStatusStats] = useState({});
   const [statsLoading, setStatsLoading] = useState(true);
   const [journals, setJournals] = useState([]);
+  const [paperTypeFilter, setPaperTypeFilter] = useState('');
   const { success, error: showError } = useToast();
 
   // Custom fetch function for editor papers with filters
@@ -76,6 +77,19 @@ const EditorPaperQueue = () => {
     handleFilterChange('journal', journalId);
   };
 
+  // Filter papers by paper type (client-side)
+  const filteredPapers = paperTypeFilter 
+    ? papers.filter(paper => paper.paper_type === paperTypeFilter)
+    : papers;
+
+  const PAPER_TYPES = [
+    'Full Length Article',
+    'Review Paper',
+    'Short Communication',
+    'Case Study',
+    'Technical Note'
+  ];
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -115,6 +129,23 @@ const EditorPaperQueue = () => {
             </select>
           </div>
         )}
+
+        {/* Paper Type Filter */}
+        <div className={styles.journalFilter}>
+          <label htmlFor="paper-type-select">Filter by Paper Type:</label>
+          <select
+            id="paper-type-select"
+            value={paperTypeFilter}
+            onChange={(e) => setPaperTypeFilter(e.target.value)}
+            disabled={loading}
+            className={styles.select}
+          >
+            <option value="">All Paper Types</option>
+            {PAPER_TYPES.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Loading State */}
@@ -134,7 +165,7 @@ const EditorPaperQueue = () => {
       )}
 
       {/* Empty State */}
-      {!loading && !error && papers.length === 0 && (
+      {!loading && !error && filteredPapers.length === 0 && (
         <div className={styles.empty}>
           <span className="material-symbols-rounded">inbox</span>
           <p>No papers in queue</p>
@@ -142,10 +173,10 @@ const EditorPaperQueue = () => {
       )}
 
       {/* Papers List */}
-      {!loading && papers.length > 0 && (
+      {!loading && filteredPapers.length > 0 && (
         <>
           <div className={styles.paperList}>
-            {papers.map((paper) => (
+            {filteredPapers.map((paper) => (
               <PaperCard
                 key={paper.id}
                 paper={paper}

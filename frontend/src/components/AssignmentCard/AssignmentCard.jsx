@@ -28,6 +28,7 @@ const AssignmentCard = ({ assignment, onStartReview }) => {
   // Determine if this is a re-review (paper has been resubmitted and needs re-review)
   const isReReview = assignment.is_resubmission && assignment.status === 'pending';
   const paperVersion = assignment.paper_version || 1;
+  const paperType = assignment.paper_type || 'Full Length Article';
 
   return (
     <div className={`${styles.assignmentCard} ${isReReview ? styles.reReviewCard : ''}`}>
@@ -56,6 +57,9 @@ const AssignmentCard = ({ assignment, onStartReview }) => {
             <span className={styles.metaItem}>
               <span className="material-symbols-rounded">person</span>
               {assignment.author || 'Unknown Author'}
+            </span>
+            <span className={styles.paperTypeChip}>
+              {paperType}
             </span>
           </div>
 

@@ -17,7 +17,9 @@ const PaperCard = ({ paper, actions = 'minimal', onManage, onView, role }) => {
   if (!paper) return null;
 
   const title = paper.title || paper.name || 'Untitled Paper';
-  const date = paper.added_on ? new Date(paper.added_on).toLocaleDateString() : 'N/A';
+  const dateValue = paper.added_on || paper.submitted_date;
+  const date = dateValue ? new Date(dateValue).toLocaleDateString() : 'N/A';
+  const paperType = paper.paper_type || 'Full Length Article';
 
   const handleManage = () => {
     // Navigate to details page for admin/editor, use callback for others
@@ -68,14 +70,13 @@ const PaperCard = ({ paper, actions = 'minimal', onManage, onView, role }) => {
                 {paper.journal_name}
               </span>
             )}
+            {/* Paper Type */}
+            <span className={styles.paperTypeChip}>
+              {paperType}
+            </span>
             {/* Review Status Chip for Admin/Editor */}
             {(actions === 'admin' || actions === 'editor') && paper.review_status && (
               <span className={`${styles.reviewStatusChip} ${styles[`review_${paper.review_status}`]}`}>
-                <span className="material-symbols-rounded">
-                  {paper.review_status === 'reviewed' ? 'check_circle' : 
-                   paper.review_status === 'partial' ? 'pending' :
-                   paper.review_status === 'pending' ? 'hourglass_empty' : 'person_add'}
-                </span>
                 {paper.review_status === 'not_assigned' ? 'Not Assigned' :
                  paper.review_status === 'pending' ? 'Review Pending' :
                  paper.review_status === 'partial' ? `Reviewed ${paper.completed_reviews}/${paper.total_reviewers}` :
