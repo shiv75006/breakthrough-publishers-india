@@ -6,41 +6,25 @@ import styles from './DashboardPage.module.css';
 
 export const DashboardPage = () => {
   const [journals, setJournals] = useState([]);
-
-  // Default journals if API returns empty
-  const defaultJournals = [
-    {
-      id: 1,
-      name: 'Breakthrough: A Multidisciplinary Journal',
-      description: 'Committed to advancing knowledge across a broad range of academic disciplines, promoting synergy between fields.',
-    },
-    {
-      id: 2,
-      name: 'Breakthrough: Journal of Energy Research',
-      description: 'Focused on advancing innovative research in energy science, renewable technologies, and sustainable systems.',
-    },
-    {
-      id: 3,
-      name: 'Breakthrough: XYZ Journal',
-      description: 'Dedicated to publishing peer-reviewed scholarly research across emerging and specialized interdisciplinary frontiers.',
-    },
-  ];
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const journalsData = await acsApi.journals.listJournals(0, 3);
-        setJournals(Array.isArray(journalsData) ? journalsData : []);
+        setLoading(true);
+        const journalsData = await acsApi.journals.listJournals(0, 6);
+        const journalsList = journalsData?.journals || journalsData || [];
+        setJournals(Array.isArray(journalsList) ? journalsList : []);
       } catch (err) {
         console.error('Error fetching journals:', err);
         setJournals([]);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
-
-  const displayJournals = journals.length > 0 ? journals : defaultJournals;
 
   return (
     <div className={styles.dashboardPageWrapper}>
@@ -65,22 +49,28 @@ export const DashboardPage = () => {
             </div>
 
             <div className={styles.journalsGrid}>
-              {displayJournals.map((journal, index) => (
-                <div key={journal.id || index} className={styles.journalCard}>
-                  <h3 className={styles.journalCardTitle}>
-                    {journal.name || journal.title || `Breakthrough: Journal ${index + 1}`}
-                  </h3>
-                  <p className={styles.journalCardDescription}>
-                    {journal.description || journal.about || 'Dedicated to publishing high-quality peer-reviewed research in specialized fields.'}
-                  </p>
-                  <Link
-                    to={`/journal/${journal.id}`}
-                    className={styles.journalCardBtn}
-                  >
-                    View Journal
-                  </Link>
-                </div>
-              ))}
+              {loading ? (
+                <p>Loading journals...</p>
+              ) : journals.length > 0 ? (
+                journals.map((journal, index) => (
+                  <div key={journal.id || index} className={styles.journalCard}>
+                    <h3 className={styles.journalCardTitle}>
+                      {journal.name || journal.title || `Breakthrough: Journal ${index + 1}`}
+                    </h3>
+                    <p className={styles.journalCardDescription}>
+                      {journal.description || journal.about || 'Dedicated to publishing high-quality peer-reviewed research in specialized fields.'}
+                    </p>
+                    <Link
+                      to={`/journal/${journal.id}`}
+                      className={styles.journalCardBtn}
+                    >
+                      View Journal
+                    </Link>
+                  </div>
+                ))
+              ) : (
+                <p>No journals available.</p>
+              )}
             </div>
           </div>
         </section>
