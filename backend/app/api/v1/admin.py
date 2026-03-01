@@ -1893,8 +1893,9 @@ async def get_paper_correspondence(
     Returns:
         List of correspondence items with sender details
     """
-    if current_user.get("role") != "admin":
-        raise HTTPException(status_code=403, detail="Admin access required")
+    # Allow both admins and editors to view correspondence
+    if current_user.get("role") not in ["admin", "editor"]:
+        raise HTTPException(status_code=403, detail="Admin or Editor access required")
     
     # Verify paper exists
     paper = db.query(Paper).filter(Paper.id == paper_id).first()
@@ -1956,21 +1957,25 @@ async def send_paper_correspondence(
     """
     import re
     
-    if current_user.get("role") != "admin":
-        raise HTTPException(status_code=403, detail="Admin access required")
+    # Allow both admins and editors to send correspondence
+    if current_user.get("role") not in ["admin", "editor"]:
+        raise HTTPException(status_code=403, detail="Admin or Editor access required")
     
     # Verify paper exists and get author info
     paper = db.query(Paper).filter(Paper.id == paper_id).first()
     if not paper:
         raise HTTPException(status_code=404, detail="Paper not found")
     
-    author = db.query(User).filter(User.id == paper.author_id).first()
+    # added_by stores user ID as string, not email
+    author = None
+    if paper.added_by and paper.added_by.isdigit():
+        author = db.query(User).filter(User.id == int(paper.added_by)).first()
     if not author:
         raise HTTPException(status_code=404, detail="Paper author not found")
     
     # Get journal info
-    journal = db.query(Journal).filter(Journal.fld_id == paper.journal_id).first()
-    journal_name = journal.fld_name if journal else "Breakthrough Publishers India Journal"
+    journal = db.query(Journal).filter(Journal.fld_id == paper.journal).first()
+    journal_name = journal.fld_journal_name if journal else "Breakthrough Publishers India Journal"
     
     # Prepare subject and message
     final_subject = subject
@@ -1991,18 +1996,40 @@ async def send_paper_correspondence(
             detail="Either template_id or both subject and message are required"
         )
     
+    # Fetch reviewer comments for this paper (from submitted reviews)
+    reviewer_comments_list = []
+    reviews = db.query(ReviewSubmission).filter(
+        ReviewSubmission.paper_id == paper_id,
+        ReviewSubmission.status == "submitted",
+        ReviewSubmission.author_comments.isnot(None)
+    ).all()
+    
+    for i, review in enumerate(reviews, 1):
+        if review.author_comments:
+            reviewer_comments_list.append(f"Reviewer {i}:\n{review.author_comments}")
+    
+    reviewer_comments_text = "\n\n".join(reviewer_comments_list) if reviewer_comments_list else "No reviewer comments available."
+    
+    # Also include editor comments if available
+    editor_comments_text = paper.editor_comments if paper.editor_comments else ""
+    
     # Default placeholders
+    author_name = f"{author.fname} {author.lname or ''}".strip()
     default_placeholders = {
-        "author_name": author.name,
+        "author_name": author_name,
         "paper_title": paper.title,
         "paper_id": str(paper.id),
         "journal_name": journal_name,
         "sender_name": current_user.get("name", "Admin"),
-        "current_status": paper.status
+        "current_status": paper.status,
+        "reviewer_comments": reviewer_comments_text,
+        "editor_comments": editor_comments_text,
+        "revision_deadline": "30 days"
     }
     
-    # Merge with provided placeholders (provided values take precedence)
-    all_placeholders = {**default_placeholders, **placeholders}
+    # Merge with provided placeholders (only non-empty values override defaults)
+    filtered_placeholders = {k: v for k, v in placeholders.items() if v and str(v).strip()}
+    all_placeholders = {**default_placeholders, **filtered_placeholders}
     
     # Substitute placeholders in subject and message
     def substitute_placeholders(text, values):
@@ -2017,11 +2044,15 @@ async def send_paper_correspondence(
     correspondence = PaperCorrespondence(
         paper_id=paper_id,
         sender_id=current_user.get("id"),
-        sender_role="admin",
+        sender_role=current_user.get("role", "admin"),
+        recipient_email=author.email,
+        recipient_name=author_name,
         template_id=template_id,
         subject=final_subject,
-        message=final_message,
-        sent_at=datetime.utcnow(),
+        body=final_message,
+        email_type="general_inquiry",
+        status_at_send=paper.status,
+        delivery_status="pending",
         is_read=False
     )
     
@@ -2036,22 +2067,29 @@ async def send_paper_correspondence(
             from app.services.correspondence_service import send_simple_email
             email_sent = send_simple_email(
                 recipient_email=author.email,
-                recipient_name=author.name,
+                recipient_name=author_name,
                 subject=final_subject,
                 message=final_message,
                 paper_title=paper.title,
                 paper_id=paper.id
             )
+            # Update correspondence record
+            correspondence.sent_at = datetime.utcnow()
+            correspondence.delivery_status = "sent" if email_sent else "failed"
+            db.commit()
         except Exception as e:
             # Log error but don't fail - correspondence is still recorded
             print(f"Email sending failed: {e}")
+            correspondence.delivery_status = "failed"
+            correspondence.error_message = str(e)
+            db.commit()
     
     return {
         "message": "Correspondence sent successfully",
         "correspondence": correspondence.to_dict(),
         "email_sent": email_sent,
         "recipient": {
-            "name": author.name,
+            "name": author_name,
             "email": author.email
         }
     }

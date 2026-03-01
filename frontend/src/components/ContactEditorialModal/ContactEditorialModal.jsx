@@ -56,14 +56,19 @@ const ContactEditorialModal = ({
       let filledSubject = template.subject;
       let filledMessage = template.body_template;
       
-      // Default placeholders
+      // Default placeholders (these will be auto-filled by the server)
+      // reviewer_comments and editor_comments are fetched from the database automatically
       const defaults = {
         author_name: authorName,
         paper_title: paperTitle,
         paper_id: paperId,
         current_status: currentStatus,
         journal_name: 'Breakthrough Publishers India Journal',
-        sender_name: senderRole === 'admin' ? 'Administrator' : 'Editor'
+        sender_name: senderRole === 'admin' ? 'Administrator' : 'Editor',
+        // These are auto-filled by server, use placeholder text for preview
+        reviewer_comments: '[Reviewer comments will be auto-filled]',
+        editor_comments: '[Editor comments will be auto-filled if available]',
+        revision_deadline: '30 days'
       };
       
       // Substitute defaults
@@ -109,7 +114,10 @@ const ContactEditorialModal = ({
         paper_id: paperId,
         current_status: currentStatus,
         journal_name: 'Breakthrough Publishers India Journal',
-        sender_name: senderRole === 'admin' ? 'Administrator' : 'Editor'
+        sender_name: senderRole === 'admin' ? 'Administrator' : 'Editor',
+        reviewer_comments: '[Reviewer comments will be auto-filled]',
+        editor_comments: '[Editor comments will be auto-filled if available]',
+        revision_deadline: '30 days'
       };
       
       Object.entries(defaults).forEach(([k, v]) => {
@@ -288,7 +296,7 @@ const ContactEditorialModal = ({
                 id="message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                rows={10}
+                rows={6}
                 placeholder="Enter your message..."
                 required
               />

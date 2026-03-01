@@ -974,8 +974,8 @@ async def resubmit_paper(
     if paper.status != "correction":
         raise HTTPException(status_code=400, detail="This paper does not require revision")
     
-    # Validate all files
-    allowed_types = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
+    # Validate all files - only .docx allowed for revisions
+    allowed_types = ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
     
     files_to_validate = [
         (track_changes_file, "Track changes file"),
@@ -986,7 +986,7 @@ async def resubmit_paper(
     file_contents = {}
     for file_obj, file_label in files_to_validate:
         if file_obj.content_type not in allowed_types:
-            raise HTTPException(status_code=400, detail=f"{file_label}: Only PDF and Word documents allowed")
+            raise HTTPException(status_code=400, detail=f"{file_label}: Only .docx (Word) documents allowed")
         content = await file_obj.read()
         if len(content) > 50 * 1024 * 1024:  # 50MB max
             raise HTTPException(status_code=400, detail=f"{file_label}: File size must be less than 50MB")

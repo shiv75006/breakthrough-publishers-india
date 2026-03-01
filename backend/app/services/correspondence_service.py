@@ -739,6 +739,7 @@ def send_simple_email(
     
     try:
         # Create HTML email with basic styling
+        # Note: Don't add "Dear recipient" here since the message body may already contain a greeting
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -758,7 +759,6 @@ def send_simple_email(
                     <h2 style="margin: 0;">Breakthrough Publishers India Journal Management System</h2>
                 </div>
                 <div class="content">
-                    <p>Dear {recipient_name},</p>
                     {message.replace(chr(10), '<br>')}
                 </div>
                 <div class="footer">

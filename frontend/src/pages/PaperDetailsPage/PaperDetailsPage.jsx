@@ -983,11 +983,11 @@ const PaperDetailsPage = () => {
                       <span className="material-symbols-rounded" style={{verticalAlign: 'middle', marginRight: '6px', fontSize: '18px'}}>track_changes</span>
                       Manuscript with Track Changes *
                     </label>
-                    <p className={styles.fileHint}>Upload your revised manuscript showing all changes highlighted using track changes</p>
+                    <p className={styles.fileHint}>Upload your revised manuscript showing all changes highlighted using track changes (.docx only)</p>
                     <input
                       type="file"
                       id="trackChangesFile"
-                      accept=".pdf,.doc,.docx"
+                      accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                       onChange={(e) => setTrackChangesFile(e.target.files[0])}
                       disabled={resubmitting}
                       className={styles.fileInput}
@@ -1006,11 +1006,11 @@ const PaperDetailsPage = () => {
                       <span className="material-symbols-rounded" style={{verticalAlign: 'middle', marginRight: '6px', fontSize: '18px'}}>article</span>
                       Clean Revised Manuscript *
                     </label>
-                    <p className={styles.fileHint}>Upload the final clean version of your revised manuscript without track changes</p>
+                    <p className={styles.fileHint}>Upload the final clean version of your revised manuscript without track changes (.docx only)</p>
                     <input
                       type="file"
                       id="cleanFile"
-                      accept=".pdf,.doc,.docx"
+                      accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                       onChange={(e) => setCleanFile(e.target.files[0])}
                       disabled={resubmitting}
                       className={styles.fileInput}
@@ -1029,11 +1029,11 @@ const PaperDetailsPage = () => {
                       <span className="material-symbols-rounded" style={{verticalAlign: 'middle', marginRight: '6px', fontSize: '18px'}}>quick_reply</span>
                       Response to Reviewer Comments *
                     </label>
-                    <p className={styles.fileHint}>Upload a detailed response letter addressing each reviewer comment point-by-point</p>
+                    <p className={styles.fileHint}>Upload a detailed response letter addressing each reviewer comment point-by-point (.docx only)</p>
                     <input
                       type="file"
                       id="responseFile"
-                      accept=".pdf,.doc,.docx"
+                      accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                       onChange={(e) => setResponseFile(e.target.files[0])}
                       disabled={resubmitting}
                       className={styles.fileInput}
