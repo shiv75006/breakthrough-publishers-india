@@ -2180,3 +2180,318 @@ async def send_paper_correspondence(
             "email": author.email
         }
     }
+
+
+# ============================================
+# ANALYTICS ENDPOINTS
+# ============================================
+
+@router.get("/analytics/submission-trends")
+@limiter.limit("100/minute")
+async def get_submission_trends(
+    request: Request,
+    months: int = Query(6, ge=1, le=12),
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get submission trends for the past N months.
+    
+    Args:
+        months: Number of months to include (default 6)
+        
+    Returns:
+        Monthly submission counts for charts
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    from datetime import timedelta
+    from calendar import monthrange
+    
+    # Calculate date range
+    end_date = datetime.utcnow()
+    start_date = end_date - timedelta(days=months * 30)
+    
+    # Query submissions grouped by month
+    submissions = db.query(
+        func.year(Paper.added_on).label('year'),
+        func.month(Paper.added_on).label('month'),
+        func.count(Paper.id).label('count')
+    ).filter(
+        Paper.added_on >= start_date
+    ).group_by(
+        func.year(Paper.added_on),
+        func.month(Paper.added_on)
+    ).order_by(
+        func.year(Paper.added_on),
+        func.month(Paper.added_on)
+    ).all()
+    
+    # Format results for frontend
+    month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    
+    trends = []
+    for sub in submissions:
+        trends.append({
+            "month": month_names[sub.month - 1],
+            "year": sub.year,
+            "submissions": sub.count,
+            "label": f"{month_names[sub.month - 1]} {sub.year}"
+        })
+    
+    return {"trends": trends}
+
+
+@router.get("/analytics/top-reviewers")
+@limiter.limit("100/minute")
+async def get_top_reviewers(
+    request: Request,
+    limit: int = Query(10, ge=1, le=50),
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get top reviewers by number of completed reviews.
+    
+    Args:
+        limit: Number of top reviewers to return
+        
+    Returns:
+        List of top reviewers with their review counts
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Query submitted reviews grouped by reviewer
+    top_reviewers = db.query(
+        ReviewSubmission.reviewer_id,
+        func.count(ReviewSubmission.id).label('review_count'),
+        func.avg(ReviewSubmission.overall_rating).label('avg_rating')
+    ).filter(
+        ReviewSubmission.status == "submitted"
+    ).group_by(
+        ReviewSubmission.reviewer_id
+    ).order_by(
+        desc(func.count(ReviewSubmission.id))
+    ).limit(limit).all()
+    
+    # Get reviewer details
+    result = []
+    for reviewer in top_reviewers:
+        # Fetch user info
+        user = db.query(User).filter(User.id == int(reviewer.reviewer_id)).first()
+        if user:
+            result.append({
+                "id": user.id,
+                "name": f"{user.fname or ''} {user.lname or ''}".strip() or user.email,
+                "email": user.email,
+                "reviews_completed": reviewer.review_count,
+                "avg_rating": round(float(reviewer.avg_rating or 0), 1)
+            })
+    
+    return {"reviewers": result}
+
+
+@router.get("/analytics/status-distribution")
+@limiter.limit("100/minute")
+async def get_status_distribution(
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get distribution of papers by status.
+    
+    Returns:
+        Count of papers in each status
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Query papers grouped by status
+    status_counts = db.query(
+        Paper.status,
+        func.count(Paper.id).label('count')
+    ).group_by(Paper.status).all()
+    
+    # Format for charts
+    distribution = []
+    status_colors = {
+        'submitted': '#3B82F6',
+        'under_review': '#F59E0B',
+        'accepted': '#10B981',
+        'rejected': '#EF4444',
+        'revisions_requested': '#8B5CF6',
+        'published': '#06B6D4'
+    }
+    
+    for status in status_counts:
+        distribution.append({
+            "status": status.status or 'unknown',
+            "count": status.count,
+            "color": status_colors.get(status.status, '#6B7280')
+        })
+    
+    return {"distribution": distribution}
+
+
+@router.get("/analytics/journal-stats")
+@limiter.limit("100/minute")
+async def get_journal_stats(
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get submission statistics by journal.
+    
+    Returns:
+        Submission counts per journal
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Query papers grouped by journal
+    journal_stats = db.query(
+        Paper.journal,
+        func.count(Paper.id).label('total_papers'),
+        func.sum(func.IF(Paper.status == 'accepted', 1, 0)).label('accepted'),
+        func.sum(func.IF(Paper.status == 'rejected', 1, 0)).label('rejected'),
+        func.sum(func.IF(Paper.status == 'under_review', 1, 0)).label('under_review')
+    ).group_by(Paper.journal).all()
+    
+    # Get journal names
+    result = []
+    for stat in journal_stats:
+        if stat.journal:
+            journal = db.query(Journal).filter(Journal.fld_id == stat.journal).first()
+            if journal:
+                result.append({
+                    "journal_id": stat.journal,
+                    "journal_name": journal.fld_journal_name or f"Journal {stat.journal}",
+                    "total_papers": stat.total_papers,
+                    "accepted": int(stat.accepted or 0),
+                    "rejected": int(stat.rejected or 0),
+                    "under_review": int(stat.under_review or 0)
+                })
+    
+    return {"journal_stats": result}
+
+
+@router.get("/analytics/user-growth")
+@limiter.limit("100/minute")
+async def get_user_growth(
+    request: Request,
+    months: int = Query(6, ge=1, le=12),
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get user registration growth over time.
+    
+    Args:
+        months: Number of months to include
+        
+    Returns:
+        Monthly user registration counts
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    from datetime import timedelta
+    
+    # Calculate date range
+    end_date = datetime.utcnow()
+    start_date = end_date - timedelta(days=months * 30)
+    
+    # Query users grouped by month
+    user_growth = db.query(
+        func.year(User.added_on).label('year'),
+        func.month(User.added_on).label('month'),
+        func.count(User.id).label('count')
+    ).filter(
+        User.added_on >= start_date,
+        User.added_on.isnot(None)
+    ).group_by(
+        func.year(User.added_on),
+        func.month(User.added_on)
+    ).order_by(
+        func.year(User.added_on),
+        func.month(User.added_on)
+    ).all()
+    
+    month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    
+    growth = []
+    for record in user_growth:
+        if record.year and record.month:
+            growth.append({
+                "month": month_names[record.month - 1],
+                "year": record.year,
+                "new_users": record.count,
+                "label": f"{month_names[record.month - 1]} {record.year}"
+            })
+    
+    return {"growth": growth}
+
+
+@router.get("/analytics/review-metrics")
+@limiter.limit("100/minute")
+async def get_review_metrics(
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get review-related metrics.
+    
+    Returns:
+        Review statistics including avg time, completion rates
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Total submitted reviews
+    total_reviews = db.query(func.count(ReviewSubmission.id)).filter(
+        ReviewSubmission.status == "submitted"
+    ).scalar() or 0
+    
+    # Average ratings
+    avg_ratings = db.query(
+        func.avg(ReviewSubmission.technical_quality).label('avg_technical'),
+        func.avg(ReviewSubmission.clarity).label('avg_clarity'),
+        func.avg(ReviewSubmission.originality).label('avg_originality'),
+        func.avg(ReviewSubmission.significance).label('avg_significance'),
+        func.avg(ReviewSubmission.overall_rating).label('avg_overall')
+    ).filter(
+        ReviewSubmission.status == "submitted"
+    ).first()
+    
+    # Recommendation distribution
+    recommendations = db.query(
+        ReviewSubmission.recommendation,
+        func.count(ReviewSubmission.id).label('count')
+    ).filter(
+        ReviewSubmission.status == "submitted",
+        ReviewSubmission.recommendation.isnot(None)
+    ).group_by(ReviewSubmission.recommendation).all()
+    
+    rec_distribution = [
+        {"recommendation": rec.recommendation, "count": rec.count}
+        for rec in recommendations
+    ]
+    
+    return {
+        "total_reviews": total_reviews,
+        "average_ratings": {
+            "technical_quality": round(float(avg_ratings.avg_technical or 0), 2),
+            "clarity": round(float(avg_ratings.avg_clarity or 0), 2),
+            "originality": round(float(avg_ratings.avg_originality or 0), 2),
+            "significance": round(float(avg_ratings.avg_significance or 0), 2),
+            "overall": round(float(avg_ratings.avg_overall or 0), 2)
+        },
+        "recommendation_distribution": rec_distribution
+    }

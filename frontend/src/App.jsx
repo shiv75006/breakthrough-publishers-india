@@ -33,6 +33,7 @@ import AdminJournals from './pages/AdminJournals/AdminJournals.jsx';
 import AdminSubmissions from './pages/AdminSubmissions/AdminSubmissions.jsx';
 import AdminSettings from './pages/AdminSettings/AdminSettings.jsx';
 import AdminRoleRequests from './pages/AdminRoleRequests/AdminRoleRequests.jsx';
+import AdminAnalytics from './pages/AdminAnalytics/AdminAnalytics.jsx';
 // Author layouts and pages
 import AuthorLayout from './layouts/AuthorLayout/AuthorLayout.jsx';
 import AuthorDashboard from './pages/AuthorDashboard/AuthorDashboard.jsx';
@@ -216,6 +217,7 @@ function AppContent() {
           <Route path="/admin/*" element={<ProtectedAdminRoute />}>
             <Route element={<AdminLayout />}>
               <Route path="" element={<AdminDashboard />} />
+              <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="journals" element={<AdminJournals />} />
               <Route path="submissions" element={<AdminSubmissions />} />

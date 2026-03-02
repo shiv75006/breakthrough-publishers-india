@@ -195,48 +195,14 @@ export const AdminDashboard = () => {
 
         {/* Sidebar */}
         <div className={styles.dashboardSidebar}>
-          {/* Submission Trends */}
+          {/* Analytics Preview */}
           <div className={`${styles.dashboardCard} ${styles.trendsCard}`}>
-            <h3>Submission Trends</h3>
-            <div className={styles.chartPlaceholder}>
-              <div className={styles.bar} style={{ height: '50%' }}></div>
-              <div className={styles.bar} style={{ height: '75%' }}></div>
-              <div className={`${styles.bar} ${styles.barActive}`} style={{ height: '100%' }}></div>
-              <div className={styles.bar} style={{ height: '66%' }}></div>
-              <div className={styles.bar} style={{ height: '80%' }}></div>
-              <div className={styles.bar} style={{ height: '33%' }}></div>
-            </div>
-            <div className={styles.chartLabels}>
-              <span>Mon</span>
-              <span>Tue</span>
-              <span>Wed</span>
-              <span>Thu</span>
-              <span>Fri</span>
-              <span>Sat</span>
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div className={`${styles.dashboardCard} ${styles.quickLinksCard}`}>
-            <h3>Quick Links</h3>
-            <div className={styles.quickLinksGrid}>
-              <Link to="/admin/journals" className={styles.quickLink}>
-                <span className={`material-symbols-rounded ${styles.quickLinkBlue}`}>add_circle</span>
-                <span>New Journal</span>
-              </Link>
-              <Link to="/admin/users" className={styles.quickLink}>
-                <span className={`material-symbols-rounded ${styles.quickLinkEmerald}`}>person_add</span>
-                <span>Invite User</span>
-              </Link>
-              <Link to="/admin/settings" className={styles.quickLink}>
-                <span className={`material-symbols-rounded ${styles.quickLinkAmber}`}>mail</span>
-                <span>Broadcast</span>
-              </Link>
-              <Link to="/admin/submissions" className={styles.quickLink}>
-                <span className={`material-symbols-rounded ${styles.quickLinkPurple}`}>assessment</span>
-                <span>View Logs</span>
-              </Link>
-            </div>
+            <h3>Analytics</h3>
+            <p className={styles.analyticsTeaser}>View detailed charts for submission trends, top reviewers, and more.</p>
+            <Link to="/admin/analytics" className={styles.analyticsLink}>
+              <span className="material-symbols-rounded">analytics</span>
+              View Full Analytics
+            </Link>
           </div>
         </div>
       </div>

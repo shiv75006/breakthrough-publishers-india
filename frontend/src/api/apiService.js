@@ -170,6 +170,20 @@ export const acsApi = {
     // Copyright Form Management
     triggerCopyrightForm: (paperId) =>
       apiService.post(`/api/v1/admin/papers/${paperId}/trigger-copyright-form`),
+    
+    // Analytics
+    getSubmissionTrends: (months = 6) =>
+      apiService.get(`/api/v1/admin/analytics/submission-trends?months=${months}`),
+    getTopReviewers: (limit = 10) =>
+      apiService.get(`/api/v1/admin/analytics/top-reviewers?limit=${limit}`),
+    getStatusDistribution: () =>
+      apiService.get('/api/v1/admin/analytics/status-distribution'),
+    getJournalStats: () =>
+      apiService.get('/api/v1/admin/analytics/journal-stats'),
+    getUserGrowth: (months = 6) =>
+      apiService.get(`/api/v1/admin/analytics/user-growth?months=${months}`),
+    getReviewMetrics: () =>
+      apiService.get('/api/v1/admin/analytics/review-metrics'),
   },
 
   // Author endpoints

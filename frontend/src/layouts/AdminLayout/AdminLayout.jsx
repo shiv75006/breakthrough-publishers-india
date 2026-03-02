@@ -7,7 +7,8 @@ const AdminLayout = () => {
   const adminSections = [
     {
       items: [
-        { icon: 'dashboard', label: 'Dashboard', path: '/admin' }
+        { icon: 'dashboard', label: 'Dashboard', path: '/admin' },
+        { icon: 'analytics', label: 'Analytics', path: '/admin/analytics' }
       ]
     },
     {
