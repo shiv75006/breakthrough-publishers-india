@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import acsApi from '../../api/apiService';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './PublicPaperView.module.css';
 
 const PublicPaperView = () => {
@@ -29,13 +30,7 @@ const PublicPaperView = () => {
   }, [fetchArticle]);
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return 'Unknown date';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return formatDateIST(dateStr);
   };
 
   const parseAuthors = (authorString) => {

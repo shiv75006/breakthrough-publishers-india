@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './AssignmentCard.module.css';
 
 const AssignmentCard = ({ assignment, onStartReview }) => {
@@ -52,7 +53,7 @@ const AssignmentCard = ({ assignment, onStartReview }) => {
           <div className={styles.metaLeft}>
             <span className={styles.metaItem}>
               <span className="material-symbols-rounded">calendar_today</span>
-              Due: {new Date(assignment.due_date).toLocaleDateString()}
+              Due: {formatDateIST(assignment.due_date)}
             </span>
             <span className={styles.paperTypeChip}>
               {paperType}

@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useJournalContext } from '../../contexts/JournalContext';
 import { acsApi, apiService } from '../../api/apiService';
 import Breadcrumbs from '../../components/breadcrumbs/Breadcrumbs';
+import { formatDateIST } from '../../utils/dateUtils';
 import './IssuePapersPage.css';
 
 const IssuePapersPage = () => {
@@ -158,7 +159,7 @@ const IssuePapersPage = () => {
                       {paper.published_date && (
                         <span className="paper-date">
                           <span className="material-symbols-rounded">calendar_today</span>
-                          {new Date(paper.published_date).toLocaleDateString()}
+                          {formatDateIST(paper.published_date)}
                         </span>
                       )}
                     </div>

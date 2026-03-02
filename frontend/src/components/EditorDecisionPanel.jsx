@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import acsApi from '../api/apiService.js';
+import { formatDateUS } from '../utils/dateUtils';
 import styles from './EditorDecisionPanel.module.css';
 
 const DECISIONS = [
@@ -191,9 +192,7 @@ export default function EditorDecisionPanel() {
             </div>
             <div className={styles.metaItem}>
               <span className="material-symbols-rounded">calendar_today</span>
-              {paperDetails?.submitted_date 
-                ? new Date(paperDetails.submitted_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-                : 'Unknown'}
+              {formatDateUS(paperDetails?.submitted_date)}
             </div>
             <span className={`${styles.statusBadge} ${styles[paperDetails?.status] || ''}`}>
               {paperDetails?.status?.replace(/_/g, ' ') || 'Unknown'}
@@ -301,9 +300,7 @@ export default function EditorDecisionPanel() {
                       </div>
                     )}
                     <div className={styles.reviewDate}>
-                      Submitted: {review.submitted_date 
-                        ? new Date(review.submitted_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-                        : 'Unknown'}
+                      Submitted: {formatDateUS(review.submitted_date)}
                     </div>
                   </div>
                 )}

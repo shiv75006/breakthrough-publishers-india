@@ -9,6 +9,7 @@ import FileViewer from '../../components/FileViewer/FileViewer';
 import StatusChips from '../../components/StatusChips/StatusChips';
 import ContactEditorialModal from '../../components/ContactEditorialModal';
 import AuthorContactModal from '../../components/AuthorContactModal';
+import { formatDateUS, formatDateTimeIST, formatDateWithWeekday, formatFutureDateWithWeekday } from '../../utils/dateUtils';
 import styles from './PaperDetailsPage.module.css';
 
 const PaperDetailsPage = () => {
@@ -77,7 +78,7 @@ const PaperDetailsPage = () => {
           icon: 'edit_note',
           title: 'Revisions Requested',
           message: deadline 
-            ? `Please submit your revisions by ${deadline.toLocaleDateString()}${daysLeft !== null ? ` (${daysLeft} days left)` : ''}`
+            ? `Please submit your revisions by ${formatDateUS(paper.revision_deadline)}${daysLeft !== null ? ` (${daysLeft} days left)` : ''}`
             : 'Please submit your revisions as soon as possible.',
           action: () => setShowResubmitForm(true),
           actionText: 'Submit Revision'
@@ -751,18 +752,11 @@ const PaperDetailsPage = () => {
 
   // Format date helper
   const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return formatDateUS(dateStr);
   };
 
   const formatDateTime = (dateStr) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleString('en-US', { 
-      month: 'short', day: 'numeric', year: 'numeric',
-      hour: 'numeric', minute: '2-digit', hour12: true 
-    });
+    return formatDateTimeIST(dateStr);
   };
 
   // Get initials for avatar
@@ -1352,7 +1346,7 @@ const PaperDetailsPage = () => {
                            (email.sender_role ? `Sent by ${email.sender_role}` : 'Email')}
                         </span>
                         <span className={styles.emailDate}>
-                          {new Date(email.created_at || email.sent_at).toLocaleString()}
+                          {formatDateTimeIST(email.created_at || email.sent_at)}
                         </span>
                       </div>
                       <div className={styles.correspondenceBody}>
@@ -1410,7 +1404,7 @@ const PaperDetailsPage = () => {
                       <div className={styles.revisionVersion}>
                         <span className={styles.versionBadge}>V{revision.version_number || idx + 1}</span>
                         <span className={styles.revisionDate}>
-                          {revision.uploaded_on ? new Date(revision.uploaded_on).toLocaleString() : 'Unknown'}
+                          {formatDateTimeIST(revision.uploaded_on)}
                         </span>
                       </div>
                       <div className={styles.revisionDetails}>
@@ -1669,7 +1663,7 @@ const PaperDetailsPage = () => {
                     className={styles.formInput}
                   />
                   <p className={styles.formHint}>
-                    Due date: {new Date(Date.now() + dueDays * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
+                    Due date: {formatFutureDateWithWeekday(dueDays)}
                   </p>
                 </div>
 

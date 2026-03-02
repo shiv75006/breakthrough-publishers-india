@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import acsApi from '../../api/apiService';
 import { useToast } from '../../hooks/useToast';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './AdminUsers.module.css';
 
 const AdminUsers = () => {
@@ -277,7 +278,7 @@ const AdminUsers = () => {
                           ))}
                         </div>
                       </td>
-                      <td>{user.added_on ? new Date(user.added_on).toLocaleDateString() : 'N/A'}</td>
+                      <td>{formatDateIST(user.added_on)}</td>
                       <td>
                         <button 
                           onClick={() => openRoleModal(user)}

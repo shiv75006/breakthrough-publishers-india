@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import acsApi from '../api/apiService.js';
+import { formatDateIST } from '../utils/dateUtils';
 import './ReviewSubmissionForm.css';
 
 const ReviewSubmissionForm = () => {
@@ -249,7 +250,7 @@ const ReviewSubmissionForm = () => {
           </p>
           {assignment?.due_date && (
             <p className="due-date">
-              Due: {new Date(assignment.due_date).toLocaleDateString()}
+              Due: {formatDateIST(assignment.due_date)}
             </p>
           )}
         </div>

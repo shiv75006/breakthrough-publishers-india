@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './RevisionRequestDisplay.module.css';
 
 const RevisionRequestDisplay = ({ decision }) => {
@@ -32,13 +33,13 @@ const RevisionRequestDisplay = ({ decision }) => {
 
       {decision.revision_requested_date && (
         <p className={styles.requestedDate}>
-          Requested on: {new Date(decision.revision_requested_date).toLocaleDateString()}
+          Requested on: {formatDateIST(decision.revision_requested_date)}
         </p>
       )}
 
       {decision.revision_deadline && (
         <p className={styles.deadlineDate}>
-          Deadline: {new Date(decision.revision_deadline).toLocaleDateString()}
+          Deadline: {formatDateIST(decision.revision_deadline)}
         </p>
       )}
 

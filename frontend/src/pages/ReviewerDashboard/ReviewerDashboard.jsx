@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import acsApi from '../../api/apiService.js';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './ReviewerDashboard.module.css';
 
 export const ReviewerDashboard = () => {
@@ -159,7 +160,7 @@ export const ReviewerDashboard = () => {
                       )}
                     </td>
                     <td className={styles.dateCell}>
-                      {new Date(assignment.due_date).toLocaleDateString()}
+                      {formatDateIST(assignment.due_date)}
                     </td>
                     <td>
                       <span className={`${styles.statusBadge} ${styles[`statusBadge${getStatusColorClass(assignment.status)}`]}`}>

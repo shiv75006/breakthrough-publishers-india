@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './FileViewer.module.css';
 
 const FileViewer = ({ filePath, fileName, fileSize, submittedDate, className = '' }) => {
@@ -16,7 +17,7 @@ const FileViewer = ({ filePath, fileName, fileSize, submittedDate, className = '
   const isPdf = filePath.toLowerCase().endsWith('.pdf');
   const displayFileName = fileName || extractFileName(filePath);
   const formattedSize = formatFileSize(fileSize);
-  const formattedDate = submittedDate ? new Date(submittedDate).toLocaleDateString() : 'Unknown';
+  const formattedDate = submittedDate ? formatDateIST(submittedDate) : 'Unknown';
 
   return (
     <div className={`${styles.container} ${className}`}>

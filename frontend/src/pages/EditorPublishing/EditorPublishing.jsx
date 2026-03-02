@@ -4,6 +4,7 @@ import acsApi from '../../api/apiService';
 import Pagination from '../../components/pagination/Pagination';
 import StatusChips from '../../components/StatusChips/StatusChips';
 import { useToast } from '../../hooks/useToast';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './EditorPublishing.module.css';
 
 const EditorPublishing = () => {
@@ -219,7 +220,7 @@ const EditorPublishing = () => {
                   </div>
                   <div className={styles.infoItem}>
                     <span className="material-symbols-rounded">calendar_today</span>
-                    <span>Submitted: {new Date(paper.submitted_date || paper.submittedDate || paper.acceptedDate || paper.updated_at).toLocaleDateString()}</span>
+                    <span>Submitted: {formatDateIST(paper.submitted_date || paper.submittedDate || paper.acceptedDate || paper.updated_at)}</span>
                   </div>
                 </div>
 

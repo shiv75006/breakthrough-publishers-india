@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './ActivityTimeline.module.css';
+import { formatRelativeDate, formatTimeIST } from '../../utils/dateUtils';
 
 /**
  * ActivityTimeline - Displays paper activity history with visual timeline
@@ -23,32 +24,6 @@ const ActivityTimeline = ({ events = [] }) => {
       default: { icon: 'schedule', color: 'slate' }
     };
     return eventStyles[type] || eventStyles.default;
-  };
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
-  };
-
-  const formatTime = (dateStr) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true
-    });
   };
 
   if (!events || events.length === 0) {
@@ -84,7 +59,7 @@ const ActivityTimeline = ({ events = [] }) => {
               <div className={styles.content}>
                 <p className={styles.eventTitle}>{event.title}</p>
                 <p className={styles.eventTime}>
-                  {formatDate(event.date)} • {formatTime(event.date)}
+                  {formatRelativeDate(event.date)} • {formatTimeIST(event.date)}
                 </p>
               </div>
             </div>

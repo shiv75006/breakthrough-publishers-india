@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import acsApi from '../../api/apiService';
 import Pagination from '../../components/pagination/Pagination';
 import { useToast } from '../../hooks/useToast';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './ReviewerInvitations.module.css';
 
 const ReviewerInvitations = () => {
@@ -144,14 +145,14 @@ const ReviewerInvitations = () => {
                     <div className={styles.infoItem}>
                       <span className={styles.infoLabel}>Invited on:</span>
                       <span className={styles.infoValue}>
-                        {new Date(invitation.invited_on).toLocaleDateString()}
+                        {formatDateIST(invitation.invited_on)}
                       </span>
                     </div>
                     {invitation.token_expiry && (
                       <div className={styles.infoItem}>
                         <span className={styles.infoLabel}>Expires:</span>
                         <span className={styles.infoValue}>
-                          {new Date(invitation.token_expiry).toLocaleDateString()}
+                          {formatDateIST(invitation.token_expiry)}
                         </span>
                       </div>
                     )}

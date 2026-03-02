@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import acsApi from '../../api/apiService.js';
 import Header from '../../components/header/Header';
 import Footer from '../../components/footer/Footer';
+import { formatDateIST } from '../../utils/dateUtils';
 import './InvitationPage.css';
 
 const InvitationPage = () => {
@@ -89,7 +90,7 @@ const InvitationPage = () => {
       
       setSuccessMessage(
         `Thank you! You have accepted the review invitation for "${invitation.paper_title}". ` +
-        `Your review is due on ${new Date(response.accepted_on).toLocaleDateString()}.`
+        `Your review is due on ${formatDateIST(response.accepted_on)}.`
       );
       
       // Redirect after 3 seconds
@@ -268,7 +269,7 @@ const InvitationPage = () => {
                   <div className="detail-item">
                     <label>Due Date:</label>
                     <p>
-                      {invitation.token_expiry ? new Date(invitation.token_expiry).toLocaleDateString() : 'Not specified'}
+                      {invitation.token_expiry ? formatDateIST(invitation.token_expiry) : 'Not specified'}
                     </p>
                   </div>
                   <div className="detail-item">

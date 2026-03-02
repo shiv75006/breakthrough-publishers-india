@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import acsApi from '../../api/apiService';
 import { useToast } from '../../hooks/useToast';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './ReviewerProfile.module.css';
 
 const ReviewerProfile = () => {
@@ -183,7 +184,7 @@ const ReviewerProfile = () => {
                 <div className={styles.detailRow}>
                   <span className={styles.label}>Member Since</span>
                   <span className={styles.value}>
-                    {profile.added_on ? new Date(profile.added_on).toLocaleDateString() : 'N/A'}
+                    {formatDateIST(profile.added_on)}
                   </span>
                 </div>
               </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import acsApi from '../../api/apiService';
 import Pagination from '../../components/pagination/Pagination';
 import { useListWithFilters } from '../../hooks/useListWithFilters';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './ReviewerHistory.module.css';
 
 const ReviewerHistory = () => {
@@ -86,7 +87,7 @@ const ReviewerHistory = () => {
                     </td>
                     <td>{review.author || '-'}</td>
                     <td>{review.journal || '-'}</td>
-                    <td>{review.assigned_date ? new Date(review.assigned_date).toLocaleDateString() : '-'}</td>
+                    <td>{formatDateIST(review.assigned_date)}</td>
                     <td>
                       <span className={`${styles.statusBadge} ${styles[getStatusColor(review.status)]}`}>
                         {getStatusLabel(review.status)}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './PaperViewer.module.css';
 
 const PaperViewer = ({ paper, reviewId }) => {
@@ -69,7 +70,7 @@ const PaperViewer = ({ paper, reviewId }) => {
             <span className="material-symbols-rounded">calendar_today</span>
             <div>
               <p className={styles.metaLabel}>Submitted</p>
-              <p className={styles.metaValue}>{paper.submitted_date ? new Date(paper.submitted_date).toLocaleDateString() : 'N/A'}</p>
+              <p className={styles.metaValue}>{formatDateIST(paper.submitted_date)}</p>
             </div>
           </div>
         </div>

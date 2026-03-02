@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import acsApi from '../../api/apiService.js';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './EditorDashboard.module.css';
 
 export const EditorDashboard = () => {
@@ -220,7 +221,7 @@ export const EditorDashboard = () => {
                       <td className={styles.titleCell}>{paper.title || paper.name || 'Untitled'}</td>
                       <td>{paper.author_name || (typeof paper.author === 'object' ? paper.author?.name : paper.author) || 'N/A'}</td>
                       <td>{paper.journal_name || (typeof paper.journal === 'object' ? paper.journal?.name : paper.journal) || 'N/A'}</td>
-                      <td>{paper.submitted_date ? new Date(paper.submitted_date).toLocaleDateString() : 'N/A'}</td>
+                      <td>{formatDateIST(paper.submitted_date)}</td>
                       <td>
                         <span className={`${styles.statusBadge} ${styles[`statusBadge${getStatusColorClass(paper.status)}`]}`}>
                           {paper.status || 'Unknown'}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './ReviewerFeedbackCard.module.css';
 
 const ReviewerFeedbackCard = ({ review }) => {
@@ -29,7 +30,7 @@ const ReviewerFeedbackCard = ({ review }) => {
           </span>
         </div>
         <span className={styles.submittedDate}>
-          {review.submitted_on ? new Date(review.submitted_on).toLocaleDateString() : 'N/A'}
+          {formatDateIST(review.submitted_on)}
         </span>
       </div>
 

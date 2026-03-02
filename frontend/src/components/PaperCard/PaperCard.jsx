@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import StatusChips from '../StatusChips/StatusChips';
+import { formatDateIST } from '../../utils/dateUtils';
 import styles from './PaperCard.module.css';
 
 /**
@@ -18,7 +19,7 @@ const PaperCard = ({ paper, actions = 'minimal', onManage, onView, role }) => {
 
   const title = paper.title || paper.name || 'Untitled Paper';
   const dateValue = paper.added_on || paper.submitted_date;
-  const date = dateValue ? new Date(dateValue).toLocaleDateString() : 'N/A';
+  const date = formatDateIST(dateValue);
   const paperType = paper.paper_type || 'Full Length Article';
 
   const handleManage = () => {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import acsApi from '../../api/apiService';
 import { useToast } from '../../hooks/useToast';
+import { formatDateTimeIST } from '../../utils/dateUtils';
 import './AdminRoleRequests.css';
 
 const ROLE_CONFIG = {
@@ -76,14 +77,7 @@ const AdminRoleRequests = () => {
   };
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return 'N/A';
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return formatDateTimeIST(dateStr);
   };
 
   const getStatusBadge = (status) => {
