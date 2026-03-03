@@ -73,7 +73,6 @@ const ReviewerHistory = () => {
               <thead>
                 <tr>
                   <th>Paper Title</th>
-                  <th>Author</th>
                   <th>Journal</th>
                   <th>Assigned Date</th>
                   <th>Status</th>
@@ -85,7 +84,6 @@ const ReviewerHistory = () => {
                     <td className={styles.titleCell}>
                       {review.paper_title || 'Untitled Paper'}
                     </td>
-                    <td>{review.author || '-'}</td>
                     <td>{review.journal || '-'}</td>
                     <td>{formatDateIST(review.assigned_date)}</td>
                     <td>
