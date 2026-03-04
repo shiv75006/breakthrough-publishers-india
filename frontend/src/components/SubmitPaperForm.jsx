@@ -14,6 +14,21 @@ const SALUTATION_OPTIONS = [
   { value: 'Ms.', label: 'Ms.' },
 ];
 
+// Research categories for journal recommendations
+const RESEARCH_CATEGORIES = [
+  { value: '', label: 'Select Research Area...' },
+  { value: 'Arts & Humanities', label: 'Arts & Humanities' },
+  { value: 'Social Sciences', label: 'Social Sciences' },
+  { value: 'Business & Economics', label: 'Business & Economics' },
+  { value: 'Law', label: 'Law' },
+  { value: 'Education', label: 'Education' },
+  { value: 'Computer Science', label: 'Computer Science' },
+  { value: 'Engineering', label: 'Engineering' },
+  { value: 'Physical Sciences', label: 'Physical Sciences' },
+  { value: 'Life Sciences', label: 'Life Sciences' },
+  { value: 'Medicine & Health', label: 'Medicine & Health' },
+];
+
 const EMPTY_CO_AUTHOR = {
   salutation: '',
   first_name: '',
@@ -258,8 +273,12 @@ export const SubmitPaperForm = () => {
     setFormData(prev => ({ ...prev, keywords: newChips.join(', ') }));
   };
 
-  // Fetch journal recommendations based on keywords and abstract
+  // Fetch journal recommendations based on research area, keywords and abstract
   const fetchJournalRecommendations = async () => {
+    if (!formData.research_area) {
+      showWarning('Please select a research area first');
+      return;
+    }
     if (keywordChips.length < 5) {
       showWarning('Please enter at least 5 keywords to get recommendations');
       return;
@@ -267,13 +286,13 @@ export const SubmitPaperForm = () => {
     
     setLoadingRecommendations(true);
     try {
-      const response = await acsApi.journals.getRecommendations(keywordChips, formData.abstract);
+      const response = await acsApi.journals.getRecommendations(formData.research_area, keywordChips, formData.abstract);
       if (response.recommendations && response.recommendations.length > 0) {
         setRecommendedJournals(response.recommendations);
         success(`Found ${response.recommendations.length} recommended journal${response.recommendations.length > 1 ? 's' : ''} for your paper!`);
       } else {
         setRecommendedJournals([]);
-        showWarning('No journal recommendations found. Please try different keywords.');
+        showWarning('No journals found in this research area. Please check our available journals.');
       }
     } catch (err) {
       console.error('Failed to fetch journal recommendations:', err);
@@ -675,25 +694,6 @@ export const SubmitPaperForm = () => {
                   }}
                   className={`${styles.input} ${touched.keywords && fieldErrors.keywords ? styles.inputError : ''}`}
                 />
-                <button
-                  type="button"
-                  onClick={fetchJournalRecommendations}
-                  disabled={keywordChips.length < 5 || loadingRecommendations}
-                  className={`${styles.suggestBtn} ${keywordChips.length >= 5 ? styles.suggestBtnActive : ''}`}
-                  title={keywordChips.length < 5 ? `Add ${5 - keywordChips.length} more keyword${5 - keywordChips.length > 1 ? 's' : ''} to enable` : 'Get journal suggestions'}
-                >
-                  {loadingRecommendations ? (
-                    <>
-                      <span className={`material-symbols-rounded ${styles.spinIcon}`}>sync</span>
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-rounded">auto_awesome</span>
-                      Suggest Journals
-                    </>
-                  )}
-                </button>
               </div>
               <div className={styles.fieldMeta}>
                 <small className={styles.helperText}>
@@ -725,16 +725,21 @@ export const SubmitPaperForm = () => {
             <div className={styles.fieldRow}>
               <div className={`${styles.field} ${touched.research_area && fieldErrors.research_area ? styles.fieldError : ''}`}>
                 <label htmlFor="research_area">Research Area *</label>
-                <input
+                <select
                   id="research_area"
-                  type="text"
-                  placeholder="e.g., Machine Learning, Bioinformatics"
                   value={formData.research_area}
-                  onChange={(e) => handleInputChange('research_area', e.target.value)}
+                  onChange={(e) => {
+                    handleInputChange('research_area', e.target.value);
+                    // Clear recommendations when area changes
+                    setRecommendedJournals([]);
+                  }}
                   onBlur={() => handleBlur('research_area')}
-                  maxLength={200}
-                  className={`${styles.input} ${touched.research_area && fieldErrors.research_area ? styles.inputError : ''}`}
-                />
+                  className={`${styles.select} ${touched.research_area && fieldErrors.research_area ? styles.inputError : ''}`}
+                >
+                  {RESEARCH_CATEGORIES.map(cat => (
+                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  ))}
+                </select>
                 {touched.research_area && fieldErrors.research_area && (
                   <span className={styles.errorText}>{fieldErrors.research_area}</span>
                 )}
@@ -745,12 +750,12 @@ export const SubmitPaperForm = () => {
                   Select Journal *
                   {recommendedJournals.length > 0 && (
                     <span className={styles.recommendedBadge}>
-                      <span className="material-symbols-rounded">stars</span>
                       {recommendedJournals.length} Recommended
                     </span>
                   )}
                 </label>
-                <div className={styles.journalDropdownWrapper}>
+                <div className={styles.journalSelectRow}>
+                  <div className={styles.journalDropdownWrapper}>
                   <button
                     type="button"
                     className={`${styles.journalDropdownTrigger} ${touched.journal_id && fieldErrors.journal_id ? styles.inputError : ''} ${journalDropdownOpen ? styles.dropdownOpen : ''}`}
@@ -818,6 +823,26 @@ export const SubmitPaperForm = () => {
                       })}
                     </div>
                   )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={fetchJournalRecommendations}
+                    disabled={!formData.research_area || keywordChips.length < 5 || loadingRecommendations}
+                    className={`${styles.suggestBtn} ${formData.research_area && keywordChips.length >= 5 ? styles.suggestBtnActive : ''}`}
+                    title={!formData.research_area ? 'Select a research area first' : keywordChips.length < 5 ? `Add ${5 - keywordChips.length} more keyword${5 - keywordChips.length > 1 ? 's' : ''} to enable` : 'Get journal suggestions'}
+                  >
+                    {loadingRecommendations ? (
+                      <>
+                        <span className={`material-symbols-rounded ${styles.spinIcon}`}>sync</span>
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-rounded">auto_awesome</span>
+                        Suggest
+                      </>
+                    )}
+                  </button>
                 </div>
                 {touched.journal_id && fieldErrors.journal_id && (
                   <span className={styles.errorText}>{fieldErrors.journal_id}</span>

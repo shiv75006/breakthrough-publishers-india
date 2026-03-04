@@ -6,6 +6,21 @@ import { useToast } from '../../hooks/useToast';
 import { useModal } from '../../hooks/useModal';
 import styles from './AdminJournals.module.css';
 
+// Research categories for journal classification
+const RESEARCH_CATEGORIES = [
+  { value: '', label: 'Select Category...' },
+  { value: 'Arts & Humanities', label: 'Arts & Humanities' },
+  { value: 'Social Sciences', label: 'Social Sciences' },
+  { value: 'Business & Economics', label: 'Business & Economics' },
+  { value: 'Law', label: 'Law' },
+  { value: 'Education', label: 'Education' },
+  { value: 'Computer Science', label: 'Computer Science' },
+  { value: 'Engineering', label: 'Engineering' },
+  { value: 'Physical Sciences', label: 'Physical Sciences' },
+  { value: 'Life Sciences', label: 'Life Sciences' },
+  { value: 'Medicine & Health', label: 'Medicine & Health' },
+];
+
 const AdminJournals = () => {
   const navigate = useNavigate();
   const { success, error: showError } = useToast();
@@ -24,6 +39,7 @@ const AdminJournals = () => {
   const [users, setUsers] = useState([]);
   const [newJournal, setNewJournal] = useState({
     fld_journal_name: '',
+    primary_category: '',
     short_form: '',
     freq: 'Quarterly',
     issn_ol: '',
@@ -185,6 +201,7 @@ const AdminJournals = () => {
       setShowAddModal(false);
       setNewJournal({
         fld_journal_name: '',
+        primary_category: '',
         short_form: '',
         freq: 'Quarterly',
         issn_ol: '',
@@ -571,6 +588,32 @@ const AdminJournals = () => {
               </div>
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
+                  <label>Primary Category *</label>
+                  <select
+                    value={newJournal.primary_category}
+                    onChange={(e) => setNewJournal({...newJournal, primary_category: e.target.value})}
+                  >
+                    {RESEARCH_CATEGORIES.map(cat => (
+                      <option key={cat.value} value={cat.value}>{cat.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Frequency</label>
+                  <select
+                    value={newJournal.freq}
+                    onChange={(e) => setNewJournal({...newJournal, freq: e.target.value})}
+                  >
+                    <option value="Monthly">Monthly</option>
+                    <option value="Bi-Monthly">Bi-Monthly</option>
+                    <option value="Quarterly">Quarterly</option>
+                    <option value="Semi-Annual">Semi-Annual</option>
+                    <option value="Annual">Annual</option>
+                  </select>
+                </div>
+              </div>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
                   <label>ISSN Online</label>
                   <input
                     type="text"
@@ -590,19 +633,6 @@ const AdminJournals = () => {
                 </div>
               </div>
               <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Frequency</label>
-                  <select
-                    value={newJournal.freq}
-                    onChange={(e) => setNewJournal({...newJournal, freq: e.target.value})}
-                  >
-                    <option value="Monthly">Monthly</option>
-                    <option value="Bi-Monthly">Bi-Monthly</option>
-                    <option value="Quarterly">Quarterly</option>
-                    <option value="Semi-Annual">Semi-Annual</option>
-                    <option value="Annual">Annual</option>
-                  </select>
-                </div>
                 <div className={styles.formGroup}>
                   <label>Abstract Indexing</label>
                   <input

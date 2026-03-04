@@ -77,6 +77,7 @@ export const updateJournal = async (id, journalData) => {
     // Transform frontend field names to backend field names
     const transformedData = {
       fld_journal_name: journalData.name,
+      primary_category: journalData.primary_category,
       freq: journalData.frequency || journalData.freq,
       issn_ol: journalData.issn_online || journalData.issn_ol,
       issn_prt: journalData.issn_print || journalData.issn_prt,

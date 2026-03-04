@@ -85,8 +85,8 @@ export const acsApi = {
     getVolumes: (journalId) => apiService.get(`/api/v1/journals/${journalId}/volumes`, { skipAuth: true }),
     getVolumeIssues: (journalId, volumeId) => apiService.get(`/api/v1/journals/${journalId}/volumes/${volumeId}/issues`, { skipAuth: true }),
     getAllIssues: (journalId) => apiService.get(`/api/v1/journals/${journalId}/issues`, { skipAuth: true }),
-    getRecommendations: (keywords, abstract = '') => 
-      apiService.post('/api/v1/journals/recommend', { keywords, abstract }),
+    getRecommendations: (researchArea, keywords, abstract = '') => 
+      apiService.post('/api/v1/journals/recommend', { research_area: researchArea, keywords, abstract }),
   },
 
   // Articles/News (public - no auth required)

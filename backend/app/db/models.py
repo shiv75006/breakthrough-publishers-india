@@ -50,6 +50,21 @@ class User(Base):
             "organisation": self.organisation
         }
 
+# Research categories for journal classification
+RESEARCH_CATEGORIES = [
+    "Arts & Humanities",
+    "Social Sciences",
+    "Business & Economics",
+    "Law",
+    "Education",
+    "Computer Science",
+    "Engineering",
+    "Physical Sciences",
+    "Life Sciences",
+    "Medicine & Health"
+]
+
+
 class Journal(Base):
     """Journal model mapping to existing MySQL journal table"""
     __tablename__ = "journal"
@@ -57,6 +72,7 @@ class Journal(Base):
     
     fld_id = Column(Integer, primary_key=True, index=True)
     fld_journal_name = Column(String(200), nullable=True)
+    fld_primary_category = Column(String(100), nullable=True)  # Research category for recommendations
     freq = Column(String(250), nullable=True)  # Frequency
     issn_ol = Column(String(250), nullable=True)  # ISSN Online
     issn_prt = Column(String(250), nullable=True)  # ISSN Print
@@ -81,6 +97,7 @@ class Journal(Base):
         return {
             "id": self.fld_id,
             "name": self.fld_journal_name,
+            "primary_category": self.fld_primary_category,
             "frequency": self.freq,
             "issn_online": self.issn_ol,
             "issn_print": self.issn_prt,

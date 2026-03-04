@@ -821,8 +821,8 @@
 /* Keyword Input Row with Suggest Button */
 .keywordInputRow {
   display: flex;
-  gap: 12px;
-  align-items: stretch;
+  gap: 10px;
+  align-items: center;
 }
 
 .keywordInputRow .input {
@@ -831,52 +831,52 @@
 
 .keywordHint {
   font-weight: 400;
-  color: #64748b;
-  font-size: 12px;
-  margin-left: 6px;
+  color: #95a5a6;
+  font-size: 11px;
+  margin-left: 4px;
 }
 
 .keywordCount {
-  margin-left: 8px;
+  margin-left: 6px;
   color: #0D4715;
   font-weight: 600;
 }
 
 .suggestBtn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: #e2e8f0;
-  color: #64748b;
-  border: 2px solid #cbd5e1;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #f5f5f5;
+  color: #999;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: not-allowed;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
+  height: auto;
 }
 
 .suggestBtn .material-symbols-rounded {
-  font-size: 20px;
+  font-size: 16px;
 }
 
 .suggestBtnActive {
-  background: linear-gradient(135deg, #0D4715 0%, #1a5c24 100%);
+  background: #0D4715;
   color: white;
   border-color: #0D4715;
   cursor: pointer;
 }
 
 .suggestBtnActive:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1a5c24 0%, #2d7a3a 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(13, 71, 21, 0.3);
+  background: #1a5c24;
+  box-shadow: 0 2px 8px rgba(13, 71, 21, 0.25);
 }
 
 .suggestBtn:disabled {
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
 .spinIcon {
@@ -888,9 +888,23 @@
   to { transform: rotate(360deg); }
 }
 
+/* Journal Select Row - dropdown + suggest button */
+.journalSelectRow {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.journalSelectRow .suggestBtn {
+  flex-shrink: 0;
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+
 /* Custom Journal Dropdown */
 .journalDropdownWrapper {
   position: relative;
+  flex: 1;
 }
 
 .journalDropdownTrigger {
@@ -898,59 +912,64 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: 10px 12px;
   background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s, box-shadow 0.2s;
   text-align: left;
 }
 
 .journalDropdownTrigger:hover {
-  border-color: #0D4715;
+  border-color: #bbb;
 }
 
 .journalDropdownTrigger.dropdownOpen {
-  border-color: #0D4715;
-  box-shadow: 0 0 0 4px rgba(13, 71, 21, 0.1);
+  border-color: #0d4016;
+  box-shadow: 0 0 0 3px rgba(118, 159, 205, 0.1);
+}
+
+.journalDropdownTrigger.inputError {
+  border-color: #e74c3c !important;
+  background-color: #fef5f5;
 }
 
 .placeholder {
-  color: #94a3b8;
+  color: #999;
 }
 
 .selectedValue {
-  color: #0f172a;
-  font-weight: 500;
+  color: #2c3e50;
+  font-weight: 400;
 }
 
 .dropdownArrow {
-  color: #64748b;
-  font-size: 24px;
+  color: #666;
+  font-size: 20px;
   transition: transform 0.2s ease;
 }
 
 .journalDropdownMenu {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 2px);
   left: 0;
   right: 0;
-  max-height: 320px;
+  max-height: 280px;
   overflow-y: auto;
   background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   z-index: 100;
-  animation: dropdownSlide 0.2s ease;
+  animation: dropdownSlide 0.15s ease;
 }
 
 @keyframes dropdownSlide {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
@@ -959,10 +978,10 @@
 }
 
 .journalDropdownOption {
-  padding: 14px 16px;
+  padding: 10px 12px;
   cursor: pointer;
   transition: background 0.15s ease;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .journalDropdownOption:last-child {
@@ -970,80 +989,70 @@
 }
 
 .journalDropdownOption:hover {
-  background: #f8fafc;
+  background: #f9f9f9;
 }
 
 .journalDropdownOption.selectedOption {
-  background: #f0fdf4;
+  background: #f0f8f0;
 }
 
 .journalDropdownOption.recommendedOption {
-  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-  border-left: 3px solid #0D4715;
+  background: #f8fcf8;
+  border-left: 2px solid #0D4715;
 }
 
 .journalDropdownOption.recommendedOption:hover {
-  background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+  background: #f0f8f0;
 }
 
 .journalOptionContent {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .journalOptionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .journalOptionName {
   font-size: 14px;
-  color: #0f172a;
-  font-weight: 500;
+  color: #2c3e50;
+  font-weight: 400;
 }
 
 .recommendedChip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: linear-gradient(135deg, #0D4715 0%, #1a5c24 100%);
+  gap: 3px;
+  background: #0D4715;
   color: white;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 500;
   flex-shrink: 0;
 }
 
 .recommendedChip .material-symbols-rounded {
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .matchReason {
-  font-size: 12px;
+  font-size: 11px;
   color: #0D4715;
-  font-weight: 500;
-  padding-left: 2px;
+  font-weight: 400;
+  padding-left: 1px;
 }
 
 .recommendedBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: 10px;
-  background: #f0fdf4;
-  color: #0D4715;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.recommendedBadge .material-symbols-rounded {
-  font-size: 14px;
+  margin-left: 6px;
+  color: #22c55e;
+  font-size: inherit;
+  font-weight: 500;
 }
 
 /* Field Row */

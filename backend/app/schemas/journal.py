@@ -32,9 +32,25 @@ class JournalDetailResponse(BaseModel):
         from_attributes = True
 
 
+# Research categories for journal classification
+RESEARCH_CATEGORIES = [
+    "Arts & Humanities",
+    "Social Sciences",
+    "Business & Economics",
+    "Law",
+    "Education",
+    "Computer Science",
+    "Engineering",
+    "Physical Sciences",
+    "Life Sciences",
+    "Medicine & Health"
+]
+
+
 class JournalRequest(BaseModel):
     """Journal request schema for create/update"""
     fld_journal_name: str = Field(..., min_length=1, max_length=200, description="Journal name")
+    primary_category: Optional[str] = Field(None, max_length=100, description="Primary research category")
     freq: Optional[str] = Field(None, max_length=250, description="Publication frequency")
     issn_ol: Optional[str] = Field(None, max_length=250, description="ISSN Online")
     issn_prt: Optional[str] = Field(None, max_length=250, description="ISSN Print")
@@ -93,6 +109,7 @@ class JournalResponse(BaseModel):
     """Journal response schema"""
     id: int = Field(..., description="Journal ID")
     name: str = Field(..., description="Journal name")
+    primary_category: Optional[str] = Field(None, description="Primary research category")
     frequency: Optional[str] = Field(None, description="Publication frequency")
     issn_online: Optional[str] = Field(None, description="ISSN Online")
     issn_print: Optional[str] = Field(None, description="ISSN Print")
@@ -265,12 +282,14 @@ class PaperSubmitExtended(BaseModel):
 # Journal Recommendation Schemas
 class JournalRecommendationRequest(BaseModel):
     """Request schema for journal recommendations"""
+    research_area: str = Field(..., description="Research area/category (required for accurate recommendations)")
     keywords: List[str] = Field(..., min_items=5, description="List of keywords (minimum 5)")
     abstract: Optional[str] = Field(None, description="Paper abstract (optional but improves accuracy)")
     
     class Config:
         json_schema_extra = {
             "example": {
+                "research_area": "Computer Science",
                 "keywords": ["machine learning", "deep learning", "neural networks", "artificial intelligence", "data science"],
                 "abstract": "This paper presents a novel approach to machine learning..."
             }

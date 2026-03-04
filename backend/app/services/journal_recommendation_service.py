@@ -1,12 +1,12 @@
 """
 Journal Recommendation Service for Authors
 
-Uses NLP-based similarity matching to recommend journals for papers based on:
-1. Keyword matching: Author keywords vs Journal scope/aim
-2. Abstract matching: Paper abstract vs Journal description/scope
+Uses category-based filtering combined with NLP similarity matching:
+1. Category Filter (HARD): Only journals in the selected research area
+2. Abstract matching: Paper abstract vs Journal scope/description using TF-IDF
+3. Keyword matching: Author keywords vs Journal content
 
-Uses TF-IDF vectorization with cosine similarity for text matching.
-Tuned for high accuracy with strict thresholds.
+This ensures authors only see journals in their discipline.
 """
 
 import logging
@@ -22,20 +22,17 @@ logger = logging.getLogger(__name__)
 
 
 class JournalRecommendationService:
-    """Service for computing journal recommendations based on paper keywords and abstract."""
+    """Service for computing journal recommendations based on research area, abstract and keywords."""
     
-    # Weight configuration - keywords are more important for accuracy
-    KEYWORD_WEIGHT = 0.6  # Weight for keyword match
-    ABSTRACT_WEIGHT = 0.4  # Weight for abstract match
+    # Weight configuration for scoring within a category
+    ABSTRACT_WEIGHT = 0.6  # Weight for abstract match
+    KEYWORD_WEIGHT = 0.4   # Weight for keyword match
     
-    # Higher threshold for accuracy (only recommend when confident)
-    MIN_RECOMMENDATION_SCORE = 0.25
+    # Threshold for recommendations (within category)
+    MIN_RECOMMENDATION_SCORE = 0.05
     
     # Maximum recommendations to return
     MAX_RECOMMENDATIONS = 3
-    
-    # Bonus for exact keyword matches
-    EXACT_MATCH_BONUS = 0.15
     
     def __init__(self, db: Session):
         self.db = db
@@ -44,36 +41,25 @@ class JournalRecommendationService:
         """Remove HTML tags from text."""
         if not text:
             return ""
-        # Remove HTML tags
         clean = re.sub(r'<[^>]+>', '', text)
-        # Replace multiple whitespace with single space
         clean = re.sub(r'\s+', ' ', clean)
         return clean.strip()
-    
-    def _extract_words(self, text: str) -> set:
-        """Extract meaningful words from text (3+ chars)."""
-        if not text:
-            return set()
-        text = text.lower()
-        return set(re.findall(r'\b[a-z]{3,}\b', text))
     
     def _build_journal_text(self, journal: Journal, details: JournalDetails = None) -> str:
         """Combine journal fields into searchable text."""
         parts = []
         
-        # Journal name and description
         if journal.fld_journal_name:
             parts.append(journal.fld_journal_name)
         
         if journal.description:
             parts.append(self._clean_html(journal.description))
         
-        # Journal details if available
         if details:
             if details.scope:
-                # Scope is most important - add twice for weight
-                parts.append(self._clean_html(details.scope))
-                parts.append(self._clean_html(details.scope))
+                scope_text = self._clean_html(details.scope)
+                parts.append(scope_text)
+                parts.append(scope_text)  # Double weight for scope
             
             if details.aim_objective:
                 parts.append(self._clean_html(details.aim_objective))
@@ -83,125 +69,89 @@ class JournalRecommendationService:
         
         return ' '.join(parts).lower().strip()
     
-    def _compute_text_similarity(self, text1: str, text2: str) -> float:
-        """Compute similarity between two texts using multiple strategies."""
+    def _compute_tfidf_similarity(self, text1: str, text2: str) -> float:
+        """
+        Compute TF-IDF based cosine similarity between two texts.
+        """
         if not text1 or not text2:
             return 0.0
         
         text1 = text1.lower().strip()
         text2 = text2.lower().strip()
         
-        if not text1 or not text2:
+        if len(text1) < 20 or len(text2) < 20:
             return 0.0
         
         try:
-            words1 = self._extract_words(text1)
-            words2 = self._extract_words(text2)
+            vectorizer = TfidfVectorizer(
+                lowercase=True,
+                stop_words='english',
+                ngram_range=(1, 2),
+                max_features=2000,
+                min_df=1,
+                max_df=0.95,
+            )
             
-            if not words1 or not words2:
-                return 0.0
+            tfidf_matrix = vectorizer.fit_transform([text1, text2])
+            similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
             
-            # Strategy 1: Exact word matches
-            exact_matches = words1 & words2
+            # Fallback to word overlap if TF-IDF returns 0
+            if similarity < 0.01:
+                words1 = set(re.findall(r'\b[a-z]{4,}\b', text1))
+                words2 = set(re.findall(r'\b[a-z]{4,}\b', text2))
+                common = words1 & words2
+                if common:
+                    similarity = len(common) / min(len(words1), len(words2), 50)
+                    similarity = min(similarity, 0.3)
             
-            # Strategy 2: Partial/substring matches
-            partial_matches = set()
-            for w1 in words1:
-                for w2 in words2:
-                    if len(w1) >= 4 and len(w2) >= 4:
-                        if w1 in w2 or w2 in w1:
-                            partial_matches.add((w1, w2))
-                        elif len(w1) >= 5 and len(w2) >= 5 and w1[:5] == w2[:5]:
-                            partial_matches.add((w1, w2))
-            
-            # Calculate score
-            total_matches = len(exact_matches) + (len(partial_matches) * 0.7)
-            
-            if total_matches > 0:
-                min_words = min(len(words1), len(words2))
-                score = min(total_matches / min_words, 1.0)
-                
-                # Boost for exact matches
-                if exact_matches:
-                    score = min(score + 0.2, 1.0)
-                
-                return score
-            
-            # Strategy 3: TF-IDF for longer texts as fallback
-            if len(text1.split()) >= 5 and len(text2.split()) >= 5:
-                vectorizer = TfidfVectorizer(
-                    lowercase=True,
-                    stop_words='english',
-                    ngram_range=(1, 2),
-                    max_features=1000,
-                    min_df=1
-                )
-                
-                tfidf_matrix = vectorizer.fit_transform([text1, text2])
-                similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-                
-                return float(similarity)
-            
-            return 0.0
+            return float(similarity)
             
         except Exception as e:
-            logger.warning(f"Error computing text similarity: {e}")
+            logger.warning(f"Error computing TF-IDF similarity: {e}")
             return 0.0
     
-    def _compute_keyword_match(self, keywords: List[str], journal_text: str) -> Tuple[float, List[str]]:
+    def _compute_keyword_overlap(self, keywords: List[str], journal_text: str) -> Tuple[float, List[str]]:
         """
-        Compute how well keywords match the journal content.
-        
-        Returns:
-            Tuple of (score, list of matched keywords)
+        Compute keyword overlap score.
         """
         if not keywords or not journal_text:
             return 0.0, []
         
-        keywords_text = ' '.join(keywords)
-        base_score = self._compute_text_similarity(keywords_text, journal_text)
+        journal_text_lower = journal_text.lower()
+        journal_words = set(re.findall(r'\b[a-z]{3,}\b', journal_text_lower))
         
-        # Check for exact keyword matches (bonus for accuracy)
-        journal_words = self._extract_words(journal_text)
         matched_keywords = []
-        exact_match_count = 0
+        match_score = 0.0
         
         for kw in keywords:
-            kw_words = self._extract_words(kw)
-            for kw_word in kw_words:
-                if kw_word in journal_words:
-                    exact_match_count += 1
-                    matched_keywords.append(kw)
-                    break
-                # Check partial matches
-                for jw in journal_words:
-                    if len(kw_word) >= 4 and len(jw) >= 4:
-                        if kw_word in jw or jw in kw_word:
-                            matched_keywords.append(kw)
-                            break
+            kw_lower = kw.lower().strip()
+            kw_words = set(re.findall(r'\b[a-z]{3,}\b', kw_lower))
+            
+            if kw_lower in journal_text_lower:
+                matched_keywords.append(kw)
+                match_score += 1.0
+            elif kw_words & journal_words:
+                matched_keywords.append(kw)
+                match_score += 0.5
         
-        # Apply exact match bonus
-        if exact_match_count >= 2:
-            base_score = min(base_score + self.EXACT_MATCH_BONUS, 1.0)
-        elif exact_match_count >= 1:
-            base_score = min(base_score + (self.EXACT_MATCH_BONUS / 2), 1.0)
+        if len(keywords) > 0:
+            match_score = match_score / len(keywords)
         
-        return base_score, list(set(matched_keywords))
+        return min(match_score, 1.0), list(set(matched_keywords))
     
-    def _generate_match_reason(self, matched_keywords: List[str], keyword_score: float, abstract_score: float) -> str:
+    def _generate_match_reason(self, matched_keywords: List[str], abstract_score: float, category: str) -> str:
         """Generate a human-readable reason for the recommendation."""
-        if matched_keywords:
-            # Show up to 3 matched keywords
+        if abstract_score > 0.3:
+            return f"Strong match in {category}"
+        elif abstract_score > 0.15:
+            return f"Good scope alignment"
+        elif matched_keywords:
             kw_str = ', '.join(matched_keywords[:3])
             if len(matched_keywords) > 3:
                 kw_str += f" +{len(matched_keywords) - 3} more"
-            return f"Matches: {kw_str}"
-        elif keyword_score > 0.3:
-            return "Strong topic alignment"
-        elif abstract_score > 0.3:
-            return "Related to your research area"
+            return f"Keywords: {kw_str}"
         else:
-            return "Relevant scope"
+            return f"Relevant in {category}"
     
     def compute_journal_score(
         self,
@@ -211,10 +161,7 @@ class JournalRecommendationService:
         details: JournalDetails = None
     ) -> Dict:
         """
-        Compute recommendation score for a journal given keywords and abstract.
-        
-        Returns:
-            Dict with score, is_recommended, and match_reason
+        Compute recommendation score for a journal.
         """
         journal_text = self._build_journal_text(journal, details)
         
@@ -227,16 +174,17 @@ class JournalRecommendationService:
                 "match_reason": ""
             }
         
-        # Compute keyword match (weighted more heavily)
-        keyword_score, matched_keywords = self._compute_keyword_match(keywords, journal_text)
-        
-        # Compute abstract match
+        # Compute abstract similarity using TF-IDF
         abstract_score = 0.0
-        if abstract:
-            abstract_score = self._compute_text_similarity(abstract, journal_text)
+        if abstract and len(abstract.strip()) >= 50:
+            abstract_score = self._compute_tfidf_similarity(abstract, journal_text)
+            abstract_score = min(abstract_score * 1.2, 1.0)
         
-        # Combine scores with weights
-        final_score = (keyword_score * self.KEYWORD_WEIGHT) + (abstract_score * self.ABSTRACT_WEIGHT)
+        # Compute keyword overlap
+        keyword_score, matched_keywords = self._compute_keyword_overlap(keywords, journal_text)
+        
+        # Combine scores
+        final_score = (abstract_score * self.ABSTRACT_WEIGHT) + (keyword_score * self.KEYWORD_WEIGHT)
         
         # Determine if recommended
         is_recommended = final_score >= self.MIN_RECOMMENDATION_SCORE
@@ -244,7 +192,8 @@ class JournalRecommendationService:
         # Generate reason
         match_reason = ""
         if is_recommended:
-            match_reason = self._generate_match_reason(matched_keywords, keyword_score, abstract_score)
+            category = journal.fld_primary_category or "your field"
+            match_reason = self._generate_match_reason(matched_keywords, abstract_score, category)
         
         return {
             "journal_id": journal.fld_id,
@@ -256,26 +205,35 @@ class JournalRecommendationService:
     
     def get_recommendations(
         self,
+        research_area: str,
         keywords: List[str],
         abstract: str = ""
     ) -> List[Dict]:
         """
-        Get journal recommendations for given keywords and abstract.
+        Get journal recommendations for given research area, keywords and abstract.
+        
+        Uses HARD FILTER by research_area - only journals in the same category are considered.
+        Within the category, scoring is based on abstract (60%) + keywords (40%).
         
         Args:
+            research_area: The research category (required for filtering)
             keywords: List of keywords from the paper
             abstract: Paper abstract (optional but improves accuracy)
         
         Returns:
             List of recommended journals with scores and reasons
         """
-        if not keywords:
+        if not research_area:
+            logger.warning("No research area provided, cannot filter journals")
             return []
         
-        # Get all journals
-        journals = self.db.query(Journal).all()
+        # HARD FILTER: Get only journals in the selected research area
+        journals = self.db.query(Journal).filter(
+            Journal.fld_primary_category == research_area
+        ).all()
         
         if not journals:
+            logger.info(f"No journals found in category: {research_area}")
             return []
         
         # Get all journal details
@@ -284,14 +242,17 @@ class JournalRecommendationService:
         for d in all_details:
             details_map[str(d.journal_id)] = d
         
-        # Compute scores for all journals
+        # Compute scores for journals in the category
         scored_journals = []
         for journal in journals:
             details = details_map.get(str(journal.fld_id))
             score_result = self.compute_journal_score(keywords, abstract, journal, details)
             
-            if score_result["is_recommended"]:
-                scored_journals.append(score_result)
+            # All journals in the category are "recommended" since they passed the filter
+            score_result["is_recommended"] = True
+            if not score_result["match_reason"]:
+                score_result["match_reason"] = f"In {research_area}"
+            scored_journals.append(score_result)
         
         # Sort by score descending
         scored_journals.sort(key=lambda x: x["score"], reverse=True)

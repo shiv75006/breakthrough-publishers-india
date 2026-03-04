@@ -96,6 +96,7 @@ async def get_journal_by_short_form(short_form: str, db: Session = Depends(get_d
     return JournalResponse(
         id=journal.fld_id,
         name=journal.fld_journal_name,
+        primary_category=journal.fld_primary_category,
         frequency=journal.freq,
         issn_online=journal.issn_ol,
         issn_print=journal.issn_prt,
@@ -138,6 +139,7 @@ async def get_journal(journal_id: int, db: Session = Depends(get_db)):
     return JournalResponse(
         id=journal.fld_id,
         name=journal.fld_journal_name,
+        primary_category=journal.fld_primary_category,
         frequency=journal.freq,
         issn_online=journal.issn_ol,
         issn_print=journal.issn_prt,
@@ -218,6 +220,7 @@ async def get_journal_recommendations(
     """
     Get journal recommendations for authors based on their paper's keywords and abstract.
     
+    - **research_area**: Research area/category (required for filtering)
     - **keywords**: List of keywords (minimum 5 required)
     - **abstract**: Paper abstract (optional but improves accuracy)
     
@@ -234,6 +237,7 @@ async def get_journal_recommendations(
     
     # Get recommendations
     recommendations = recommendation_service.get_recommendations(
+        research_area=data.research_area,
         keywords=data.keywords,
         abstract=data.abstract or ""
     )
@@ -289,6 +293,7 @@ async def create_journal(
     # Create new journal
     new_journal = Journal(
         fld_journal_name=data.fld_journal_name,
+        fld_primary_category=data.primary_category,
         freq=data.freq,
         issn_ol=data.issn_ol,
         issn_prt=data.issn_prt,
@@ -369,6 +374,7 @@ async def create_journal(
     return JournalResponse(
         id=new_journal.fld_id,
         name=new_journal.fld_journal_name,
+        primary_category=new_journal.fld_primary_category,
         frequency=new_journal.freq,
         issn_online=new_journal.issn_ol,
         issn_print=new_journal.issn_prt,
@@ -421,6 +427,7 @@ async def update_journal(
     
     # Update fields - only update if provided, otherwise keep existing values
     journal.fld_journal_name = data.fld_journal_name
+    journal.fld_primary_category = data.primary_category if data.primary_category is not None else journal.fld_primary_category
     journal.freq = data.freq if data.freq is not None else journal.freq
     journal.issn_ol = data.issn_ol if data.issn_ol is not None else journal.issn_ol
     journal.issn_prt = data.issn_prt if data.issn_prt is not None else journal.issn_prt
@@ -485,6 +492,7 @@ async def update_journal(
     return JournalResponse(
         id=journal.fld_id,
         name=journal.fld_journal_name,
+        primary_category=journal.fld_primary_category,
         frequency=journal.freq,
         issn_online=journal.issn_ol,
         issn_print=journal.issn_prt,
