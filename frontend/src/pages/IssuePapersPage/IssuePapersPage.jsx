@@ -37,9 +37,10 @@ const IssuePapersPage = () => {
         setJournal(journalData);
       }
 
-      // Fetch papers for this issue - using correct API path
+      // Fetch papers for this issue - using correct API path (public, no auth required)
       const papersResponse = await apiService.get(
-        `/api/v1/journals/${journalId}/issues/${volumeNo}/${issueNo}/papers`
+        `/api/v1/journals/${journalId}/issues/${volumeNo}/${issueNo}/papers`,
+        { skipAuth: true }
       );
       setPapers(papersResponse.papers || []);
     } catch (err) {

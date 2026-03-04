@@ -37,6 +37,9 @@ apiClient.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+    } else {
+      // Preserve skipAuth info for response interceptor
+      config._skipAuth = true;
     }
     // Remove the skipAuth flag from config before sending
     delete config.skipAuth;
@@ -61,11 +64,22 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
+    // Define public routes where we shouldn't redirect to login
+    const publicRoutes = ['/', '/journals', '/login', '/signup', '/article'];
+    const isPublicRoute = publicRoutes.some(route => 
+      window.location.pathname === route || 
+      window.location.pathname.startsWith('/j/') ||
+      window.location.pathname.startsWith('/article/')
+    );
+    
+    // Check if the original request was meant to skip auth
+    const wasPublicRequest = originalRequest?._skipAuth;
+    
     // If 401 error and we haven't already tried to refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Skip refresh for login/signup/refresh endpoints
+      // Skip refresh for login/signup/refresh endpoints or public requests
       const skipRefreshUrls = ['/api/v1/auth/login', '/api/v1/auth/signup', '/api/v1/auth/refresh'];
-      if (skipRefreshUrls.some(url => originalRequest.url?.includes(url))) {
+      if (skipRefreshUrls.some(url => originalRequest.url?.includes(url)) || wasPublicRequest) {
         return Promise.reject(error);
       }
       
@@ -89,15 +103,19 @@ apiClient.interceptors.response.use(
       const refreshToken = localStorage.getItem('refreshToken');
       
       if (!refreshToken) {
-        // No refresh token, clear everything and redirect
+        // No refresh token, clear everything
         localStorage.removeItem('authToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
         isRefreshing = false;
-        toast.warning('Session expired. Please login again.');
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 1500);
+        
+        // Only redirect to login if NOT on a public route
+        if (!isPublicRoute) {
+          toast.warning('Session expired. Please login again.');
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1500);
+        }
         return Promise.reject(error);
       }
       
@@ -127,13 +145,13 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         
-        // Refresh failed, clear tokens and redirect to login
+        // Refresh failed, clear tokens
         localStorage.removeItem('authToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
         
-        // Redirect to login only if not already there
-        if (!window.location.pathname.includes('/login')) {
+        // Only redirect to login if NOT on a public route
+        if (!isPublicRoute && !window.location.pathname.includes('/login')) {
           toast.warning('Session expired. Please login again.');
           setTimeout(() => {
             window.location.href = '/login';

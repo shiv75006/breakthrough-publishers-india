@@ -73,44 +73,44 @@ export const acsApi = {
   getUserProfile: () => apiService.get('users/profile/'),
   updateUserProfile: (data) => apiService.put('users/profile/', data),
 
-  // Journals
+  // Journals (public - no auth required)
   journals: {
     list: (skip = 0, limit = 10) => 
-      apiService.get(`/api/v1/journals/?skip=${skip}&limit=${limit}`),
+      apiService.get(`/api/v1/journals/?skip=${skip}&limit=${limit}`, { skipAuth: true }),
     listJournals: (skip = 0, limit = 3) => 
-      apiService.get(`/api/v1/journals/?skip=${skip}&limit=${limit}`),
-    getDetail: (id) => apiService.get(`/api/v1/journals/${id}`),
-    getDetails: (id) => apiService.get(`/api/v1/journals/${id}/details`),
-    getByShortForm: (shortForm) => apiService.get(`/api/v1/journals/by-subdomain/${shortForm}`),
-    getVolumes: (journalId) => apiService.get(`/api/v1/journals/${journalId}/volumes`),
-    getVolumeIssues: (journalId, volumeId) => apiService.get(`/api/v1/journals/${journalId}/volumes/${volumeId}/issues`),
-    getAllIssues: (journalId) => apiService.get(`/api/v1/journals/${journalId}/issues`),
+      apiService.get(`/api/v1/journals/?skip=${skip}&limit=${limit}`, { skipAuth: true }),
+    getDetail: (id) => apiService.get(`/api/v1/journals/${id}`, { skipAuth: true }),
+    getDetails: (id) => apiService.get(`/api/v1/journals/${id}/details`, { skipAuth: true }),
+    getByShortForm: (shortForm) => apiService.get(`/api/v1/journals/by-subdomain/${shortForm}`, { skipAuth: true }),
+    getVolumes: (journalId) => apiService.get(`/api/v1/journals/${journalId}/volumes`, { skipAuth: true }),
+    getVolumeIssues: (journalId, volumeId) => apiService.get(`/api/v1/journals/${journalId}/volumes/${volumeId}/issues`, { skipAuth: true }),
+    getAllIssues: (journalId) => apiService.get(`/api/v1/journals/${journalId}/issues`, { skipAuth: true }),
     getRecommendations: (keywords, abstract = '') => 
       apiService.post('/api/v1/journals/recommend', { keywords, abstract }),
   },
 
-  // Articles/News
+  // Articles/News (public - no auth required)
   articles: {
     list: (skip = 0, limit = 10) => 
-      apiService.get(`/api/v1/articles/?skip=${skip}&limit=${limit}`),
+      apiService.get(`/api/v1/articles/?skip=${skip}&limit=${limit}`, { skipAuth: true }),
     latest: (limit = 5) => 
-      apiService.get(`/api/v1/articles/latest?limit=${limit}`),
-    getDetail: (id) => apiService.get(`/api/v1/articles/${id}`),
+      apiService.get(`/api/v1/articles/latest?limit=${limit}`, { skipAuth: true }),
+    getDetail: (id) => apiService.get(`/api/v1/articles/${id}`, { skipAuth: true }),
     getByJournal: (journalId, skip = 0, limit = 10) => 
-      apiService.get(`/api/v1/articles/journal/${journalId}?skip=${skip}&limit=${limit}`),
+      apiService.get(`/api/v1/articles/journal/${journalId}?skip=${skip}&limit=${limit}`, { skipAuth: true }),
   },
 
   // Public News/Announcements (no auth required)
   news: {
     list: (skip = 0, limit = 10, journalId = null) => 
-      apiService.get(`/api/v1/articles/news?skip=${skip}&limit=${limit}${journalId ? `&journal_id=${journalId}` : ''}`),
-    getDetail: (newsId) => apiService.get(`/api/v1/articles/news/${newsId}`),
+      apiService.get(`/api/v1/articles/news?skip=${skip}&limit=${limit}${journalId ? `&journal_id=${journalId}` : ''}`, { skipAuth: true }),
+    getDetail: (newsId) => apiService.get(`/api/v1/articles/news/${newsId}`, { skipAuth: true }),
   },
 
-  // Legacy methods for backwards compatibility
+  // Legacy methods for backwards compatibility (public)
   getJournals: (skip = 0, limit = 20, search = '') => 
-    apiService.get(`/api/v1/journals/?skip=${skip}&limit=${limit}${search ? `&search=${search}` : ''}`),
-  getJournalDetail: (id) => apiService.get(`/api/v1/journals/${id}`),
+    apiService.get(`/api/v1/journals/?skip=${skip}&limit=${limit}${search ? `&search=${search}` : ''}`, { skipAuth: true }),
+  getJournalDetail: (id) => apiService.get(`/api/v1/journals/${id}`, { skipAuth: true }),
 
   // Admin endpoints
   admin: {
