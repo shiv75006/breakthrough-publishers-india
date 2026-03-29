@@ -267,7 +267,7 @@ const JournalDetailPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAdmin, isEditor } = useRole();
-  const { selectedJournal, loading, error, getJournalById, editJournal, removeJournal } = useJournals();
+  const { selectedJournal, loading, error, getJournalById, editJournal, editJournalWithFiles, removeJournal } = useJournals();
   const { success, error: showError, warning, info } = useToast();
   const { confirm } = useModal();
   const [isEditMode, setIsEditMode] = useState(false);
@@ -277,6 +277,12 @@ const JournalDetailPage = () => {
   // Journal details state
   const [journalDetails, setJournalDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  
+  // File upload state
+  const [journalImageFile, setJournalImageFile] = useState(null);
+  const [journalLogoFile, setJournalLogoFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
   
   // Available editors state
   const [availableEditors, setAvailableEditors] = useState([]);
@@ -469,11 +475,21 @@ const JournalDetailPage = () => {
         section_editor_ids: selectedSectionEditors,
       };
       
-      await editJournal(id, updateData);
+      // Use file upload version if files are present
+      if (journalImageFile || journalLogoFile) {
+        await editJournalWithFiles(id, updateData, journalImageFile, journalLogoFile);
+      } else {
+        await editJournal(id, updateData);
+      }
       // Refresh the journal data and details after successful update
       await getJournalById(id);
       await fetchJournalDetails(id);
       setIsEditMode(false);
+      // Reset file state
+      setJournalImageFile(null);
+      setJournalLogoFile(null);
+      setImagePreview(null);
+      setLogoPreview(null);
       success('Journal updated successfully!', 4000);
     } catch (err) {
       showError('Failed to update journal: ' + err.message, 5000);
@@ -654,6 +670,96 @@ const JournalDetailPage = () => {
                   placeholder="Search and add section editors..."
                   loading={loadingEditors}
                 />
+              </div>
+            </section>
+
+            {/* Media & Branding Section */}
+            <section className="form-section">
+              <div className="section-header">
+                <span className="material-symbols-rounded">image</span>
+                <h3>Media & Branding</h3>
+              </div>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Journal Image</label>
+                  <div className="file-upload-wrapper">
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setJournalImageFile(file);
+                          setImagePreview(URL.createObjectURL(file));
+                        }
+                      }}
+                      id="edit-journal-image"
+                      className="file-input"
+                    />
+                    <label htmlFor="edit-journal-image" className="file-upload-label">
+                      <span className="material-symbols-rounded">upload</span>
+                      {journalImageFile ? journalImageFile.name : 'Choose image file'}
+                    </label>
+                    {(imagePreview || selectedJournal?.journal_image) && (
+                      <div className="image-preview">
+                        <img src={imagePreview || selectedJournal?.journal_image} alt="Journal preview" />
+                        {imagePreview && (
+                          <button 
+                            type="button" 
+                            className="remove-preview"
+                            onClick={() => {
+                              setJournalImageFile(null);
+                              setImagePreview(null);
+                            }}
+                          >
+                            <span className="material-symbols-rounded">close</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <span className="file-hint">Accepts JPG, PNG, GIF, WebP</span>
+                </div>
+                <div className="form-group">
+                  <label>Journal Logo</label>
+                  <div className="file-upload-wrapper">
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setJournalLogoFile(file);
+                          setLogoPreview(URL.createObjectURL(file));
+                        }
+                      }}
+                      id="edit-journal-logo"
+                      className="file-input"
+                    />
+                    <label htmlFor="edit-journal-logo" className="file-upload-label">
+                      <span className="material-symbols-rounded">upload</span>
+                      {journalLogoFile ? journalLogoFile.name : 'Choose logo file'}
+                    </label>
+                    {(logoPreview || selectedJournal?.journal_logo) && (
+                      <div className="image-preview">
+                        <img src={logoPreview || selectedJournal?.journal_logo} alt="Logo preview" />
+                        {logoPreview && (
+                          <button 
+                            type="button" 
+                            className="remove-preview"
+                            onClick={() => {
+                              setJournalLogoFile(null);
+                              setLogoPreview(null);
+                            }}
+                          >
+                            <span className="material-symbols-rounded">close</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <span className="file-hint">Accepts JPG, PNG, GIF, WebP</span>
+                </div>
               </div>
             </section>
 

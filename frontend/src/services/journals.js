@@ -1,4 +1,5 @@
 import { apiService } from '../api/apiService';
+import apiClient from '../api/axios';
 
 const JOURNAL_ENDPOINTS = {
   LIST: '/api/v1/journals/',
@@ -67,6 +68,51 @@ export const createJournal = async (journalData) => {
 };
 
 /**
+ * Create a new journal with file uploads
+ * @param {object} journalData - Journal data
+ * @param {File} imageFile - Journal image file (optional)
+ * @param {File} logoFile - Journal logo file (optional)
+ * @returns {Promise<object>} - Created journal
+ */
+export const createJournalWithFiles = async (journalData, imageFile = null, logoFile = null) => {
+  try {
+    const formData = new FormData();
+    
+    // Add all journal data fields
+    Object.keys(journalData).forEach(key => {
+      if (journalData[key] !== null && journalData[key] !== undefined && journalData[key] !== '') {
+        if (Array.isArray(journalData[key])) {
+          // Handle arrays (like section_editor_ids)
+          journalData[key].forEach(item => {
+            formData.append(key, item);
+          });
+        } else {
+          formData.append(key, journalData[key]);
+        }
+      }
+    });
+    
+    // Add files if provided
+    if (imageFile) {
+      formData.append('journal_image', imageFile);
+    }
+    if (logoFile) {
+      formData.append('journal_logo', logoFile);
+    }
+    
+    const response = await apiClient.post(JOURNAL_ENDPOINTS.CREATE, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating journal with files:', error);
+    throw error;
+  }
+};
+
+/**
  * Update an existing journal
  * @param {number} id - Journal ID
  * @param {object} journalData - Updated journal data
@@ -107,6 +153,80 @@ export const updateJournal = async (id, journalData) => {
     return await apiService.put(JOURNAL_ENDPOINTS.UPDATE(id), transformedData);
   } catch (error) {
     console.error(`Error updating journal ${id}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Update an existing journal with file uploads
+ * @param {number} id - Journal ID
+ * @param {object} journalData - Updated journal data
+ * @param {File} imageFile - Journal image file (optional)
+ * @param {File} logoFile - Journal logo file (optional)
+ * @returns {Promise<object>} - Updated journal
+ */
+export const updateJournalWithFiles = async (id, journalData, imageFile = null, logoFile = null) => {
+  try {
+    const formData = new FormData();
+    
+    // Transform and add all journal data fields
+    const transformedData = {
+      fld_journal_name: journalData.name,
+      primary_category: journalData.primary_category,
+      freq: journalData.frequency || journalData.freq,
+      issn_ol: journalData.issn_online || journalData.issn_ol,
+      issn_prt: journalData.issn_print || journalData.issn_prt,
+      cheif_editor: journalData.chief_editor || journalData.cheif_editor,
+      co_editor: journalData.co_editor,
+      abs_ind: journalData.abstract_indexing || journalData.abs_ind,
+      short_form: journalData.short_form,
+      guidelines: journalData.guidelines,
+      copyright: journalData.copyright,
+      membership: journalData.membership,
+      subscription: journalData.subscription,
+      publication: journalData.publication,
+      advertisement: journalData.advertisement,
+      description: journalData.description,
+      about_journal: journalData.about_journal,
+      chief_say: journalData.chief_say,
+      aim_objective: journalData.aim_objective,
+      criteria: journalData.criteria,
+      scope: journalData.scope,
+      detailed_guidelines: journalData.detailed_guidelines,
+      readings: journalData.readings,
+      chief_editor_id: journalData.chief_editor_id,
+      co_editor_id: journalData.co_editor_id,
+      section_editor_ids: journalData.section_editor_ids,
+    };
+    
+    Object.keys(transformedData).forEach(key => {
+      if (transformedData[key] !== null && transformedData[key] !== undefined && transformedData[key] !== '') {
+        if (Array.isArray(transformedData[key])) {
+          transformedData[key].forEach(item => {
+            formData.append(key, item);
+          });
+        } else {
+          formData.append(key, transformedData[key]);
+        }
+      }
+    });
+    
+    // Add files if provided
+    if (imageFile) {
+      formData.append('journal_image', imageFile);
+    }
+    if (logoFile) {
+      formData.append('journal_logo', logoFile);
+    }
+    
+    const response = await apiClient.put(JOURNAL_ENDPOINTS.UPDATE(id), formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating journal ${id} with files:`, error);
     throw error;
   }
 };

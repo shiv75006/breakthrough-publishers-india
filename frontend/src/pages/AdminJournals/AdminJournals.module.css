@@ -1007,6 +1007,88 @@
   font-size: 1.1rem;
 }
 
+/* File Upload Styles */
+.fileUploadWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileUploadLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.fileUploadLabel:hover {
+  border-color: #0066cc;
+  background: #f0f7ff;
+  color: #0066cc;
+}
+
+.fileUploadLabel .material-symbols-rounded {
+  font-size: 1.25rem;
+}
+
+.imagePreview {
+  position: relative;
+  display: inline-block;
+  max-width: 150px;
+}
+
+.imagePreview img {
+  width: 100%;
+  height: auto;
+  max-height: 100px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.removePreview {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.removePreview:hover {
+  background: #dc2626;
+}
+
+.removePreview .material-symbols-rounded {
+  font-size: 14px;
+}
+
+.fileHint {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
 @media (max-width: 600px) {
   .formRow {
     grid-template-columns: 1fr;

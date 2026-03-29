@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import acsApi from '../../api/apiService';
-import { createJournal } from '../../services/journals';
+import { createJournal, createJournalWithFiles } from '../../services/journals';
 import { useToast } from '../../hooks/useToast';
 import { useModal } from '../../hooks/useModal';
 import styles from './AdminJournals.module.css';
@@ -80,6 +80,11 @@ const AdminJournals = () => {
   const [selectedCoEditor, setSelectedCoEditor] = useState('');
   const [selectedSectionEditors, setSelectedSectionEditors] = useState([]);
   const [loadingEditors, setLoadingEditors] = useState(false);
+  // File upload state
+  const [journalImageFile, setJournalImageFile] = useState(null);
+  const [journalLogoFile, setJournalLogoFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
   const journalsPerPage = 6;
 
   const fetchJournals = useCallback(async () => {
@@ -196,7 +201,13 @@ const AdminJournals = () => {
         section_editor_ids: selectedSectionEditors.map(id => parseInt(id)),
       };
       
-      const created = await createJournal(journalData);
+      let created;
+      // Use FormData if files are present
+      if (journalImageFile || journalLogoFile) {
+        created = await createJournalWithFiles(journalData, journalImageFile, journalLogoFile);
+      } else {
+        created = await createJournal(journalData);
+      }
       success(`Journal "${created.name}" created successfully!`, 4000);
       setShowAddModal(false);
       setNewJournal({
@@ -230,6 +241,11 @@ const AdminJournals = () => {
       setSelectedChiefEditor('');
       setSelectedCoEditor('');
       setSelectedSectionEditors([]);
+      // Reset file uploads
+      setJournalImageFile(null);
+      setJournalLogoFile(null);
+      setImagePreview(null);
+      setLogoPreview(null);
       fetchJournals();
     } catch (err) {
       showError(err.response?.data?.detail || 'Failed to create journal', 5000);
@@ -734,22 +750,80 @@ const AdminJournals = () => {
               <h3 className={styles.sectionTitle}>Media & Branding</h3>
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label>Journal Image URL</label>
-                  <input
-                    type="text"
-                    value={newJournal.journal_image}
-                    onChange={(e) => setNewJournal({...newJournal, journal_image: e.target.value})}
-                    placeholder="https://example.com/image.jpg"
-                  />
+                  <label>Journal Image</label>
+                  <div className={styles.fileUploadWrapper}>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setJournalImageFile(file);
+                          setImagePreview(URL.createObjectURL(file));
+                        }
+                      }}
+                      id="journal-image-upload"
+                      className={styles.fileInput}
+                    />
+                    <label htmlFor="journal-image-upload" className={styles.fileUploadLabel}>
+                      <span className="material-symbols-rounded">upload</span>
+                      {journalImageFile ? journalImageFile.name : 'Choose image file'}
+                    </label>
+                    {imagePreview && (
+                      <div className={styles.imagePreview}>
+                        <img src={imagePreview} alt="Journal preview" />
+                        <button 
+                          type="button" 
+                          className={styles.removePreview}
+                          onClick={() => {
+                            setJournalImageFile(null);
+                            setImagePreview(null);
+                          }}
+                        >
+                          <span className="material-symbols-rounded">close</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <span className={styles.fileHint}>Accepts JPG, PNG, GIF, WebP</span>
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Journal Logo URL</label>
-                  <input
-                    type="text"
-                    value={newJournal.journal_logo}
-                    onChange={(e) => setNewJournal({...newJournal, journal_logo: e.target.value})}
-                    placeholder="https://example.com/logo.png"
-                  />
+                  <label>Journal Logo</label>
+                  <div className={styles.fileUploadWrapper}>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setJournalLogoFile(file);
+                          setLogoPreview(URL.createObjectURL(file));
+                        }
+                      }}
+                      id="journal-logo-upload"
+                      className={styles.fileInput}
+                    />
+                    <label htmlFor="journal-logo-upload" className={styles.fileUploadLabel}>
+                      <span className="material-symbols-rounded">upload</span>
+                      {journalLogoFile ? journalLogoFile.name : 'Choose logo file'}
+                    </label>
+                    {logoPreview && (
+                      <div className={styles.imagePreview}>
+                        <img src={logoPreview} alt="Logo preview" />
+                        <button 
+                          type="button" 
+                          className={styles.removePreview}
+                          onClick={() => {
+                            setJournalLogoFile(null);
+                            setLogoPreview(null);
+                          }}
+                        >
+                          <span className="material-symbols-rounded">close</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <span className={styles.fileHint}>Accepts JPG, PNG, GIF, WebP</span>
                 </div>
               </div>
 

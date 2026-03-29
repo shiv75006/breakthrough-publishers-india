@@ -1,6 +1,20 @@
 import React, { createContext, useState, useCallback } from 'react';
 
-export const ModalContext = createContext();
+// Default context value to prevent undefined errors
+const defaultContextValue = {
+  isOpen: false,
+  title: '',
+  message: '',
+  confirmText: 'OK',
+  cancelText: 'Cancel',
+  type: 'info',
+  onConfirm: null,
+  onCancel: null,
+  openModal: () => {},
+  closeModal: () => {},
+};
+
+export const ModalContext = createContext(defaultContextValue);
 
 export const ModalProvider = ({ children }) => {
   const [modalState, setModalState] = useState({

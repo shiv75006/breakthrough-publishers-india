@@ -4,7 +4,9 @@ import {
   fetchJournalById,
   fetchJournalDetails,
   createJournal,
+  createJournalWithFiles,
   updateJournal,
+  updateJournalWithFiles,
   deleteJournal,
 } from '../services/journals';
 
@@ -119,6 +121,30 @@ export const useJournals = () => {
   );
 
   /**
+   * Update an existing journal with file uploads
+   */
+  const editJournalWithFiles = useCallback(
+    async (id, journalData, imageFile = null, logoFile = null) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const updated = await updateJournalWithFiles(id, journalData, imageFile, logoFile);
+        setJournals(journals.map((j) => (j.id === id ? updated : j)));
+        if (selectedJournal?.id === id) {
+          setSelectedJournal(updated);
+        }
+        return updated;
+      } catch (err) {
+        setError(err.message || 'Failed to update journal');
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [journals, selectedJournal]
+  );
+
+  /**
    * Delete a journal
    */
   const removeJournal = useCallback(
@@ -172,6 +198,7 @@ export const useJournals = () => {
     getJournalDetails,
     addJournal,
     editJournal,
+    editJournalWithFiles,
     removeJournal,
     clearError,
     clearSelection,

@@ -1,7 +1,14 @@
 import React, { createContext, useState, useCallback, useEffect } from 'react';
 import { setToastHandler } from '../utils/toast';
 
-export const ToastContext = createContext(null);
+// Default context value to prevent undefined errors
+const defaultContextValue = {
+  toasts: [],
+  addToast: () => {},
+  removeToast: () => {},
+};
+
+export const ToastContext = createContext(defaultContextValue);
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);

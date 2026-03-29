@@ -130,7 +130,7 @@ export const JournalProvider = ({ children, shortForm }) => {
 export const useJournalContext = () => {
   const context = useContext(JournalContext);
   
-  if (context === undefined) {
+  if (context === undefined || context === null) {
     throw new Error('useJournalContext must be used within a JournalProvider');
   }
   
