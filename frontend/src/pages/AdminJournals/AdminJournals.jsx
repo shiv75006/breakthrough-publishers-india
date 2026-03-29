@@ -588,7 +588,7 @@ const AdminJournals = () => {
               </div>
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label>Primary Category *</label>
+                  <label>Primary Category</label>
                   <select
                     value={newJournal.primary_category}
                     onChange={(e) => setNewJournal({...newJournal, primary_category: e.target.value})}
@@ -755,68 +755,62 @@ const AdminJournals = () => {
 
               {/* Policies & Documents */}
               <h3 className={styles.sectionTitle}>Policies & Documents</h3>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Guidelines URL</label>
-                  <input
-                    type="text"
-                    value={newJournal.guidelines}
-                    onChange={(e) => setNewJournal({...newJournal, guidelines: e.target.value})}
-                    placeholder="https://example.com/guidelines.pdf"
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Copyright URL</label>
-                  <input
-                    type="text"
-                    value={newJournal.copyright}
-                    onChange={(e) => setNewJournal({...newJournal, copyright: e.target.value})}
-                    placeholder="https://example.com/copyright.pdf"
-                  />
-                </div>
+              <div className={styles.formGroup}>
+                <label>Guidelines</label>
+                <textarea
+                  value={newJournal.guidelines}
+                  onChange={(e) => setNewJournal({...newJournal, guidelines: e.target.value})}
+                  placeholder="Enter submission guidelines (plain text only)..."
+                  rows={4}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Copyright Policy</label>
+                <textarea
+                  value={newJournal.copyright}
+                  onChange={(e) => setNewJournal({...newJournal, copyright: e.target.value})}
+                  placeholder="Enter copyright policy (plain text only)..."
+                  rows={4}
+                />
               </div>
 
               {/* Subscription & Business */}
               <h3 className={styles.sectionTitle}>Subscription & Business</h3>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Membership URL</label>
-                  <input
-                    type="text"
-                    value={newJournal.membership}
-                    onChange={(e) => setNewJournal({...newJournal, membership: e.target.value})}
-                    placeholder="https://example.com/membership"
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Subscription URL</label>
-                  <input
-                    type="text"
-                    value={newJournal.subscription}
-                    onChange={(e) => setNewJournal({...newJournal, subscription: e.target.value})}
-                    placeholder="https://example.com/subscription"
-                  />
-                </div>
+              <div className={styles.formGroup}>
+                <label>Membership Information</label>
+                <textarea
+                  value={newJournal.membership}
+                  onChange={(e) => setNewJournal({...newJournal, membership: e.target.value})}
+                  placeholder="Enter membership information (plain text only)..."
+                  rows={4}
+                />
               </div>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Publication URL</label>
-                  <input
-                    type="text"
-                    value={newJournal.publication}
-                    onChange={(e) => setNewJournal({...newJournal, publication: e.target.value})}
-                    placeholder="https://example.com/publication"
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Advertisement URL</label>
-                  <input
-                    type="text"
-                    value={newJournal.advertisement}
-                    onChange={(e) => setNewJournal({...newJournal, advertisement: e.target.value})}
-                    placeholder="https://example.com/advertisement"
-                  />
-                </div>
+              <div className={styles.formGroup}>
+                <label>Subscription Information</label>
+                <textarea
+                  value={newJournal.subscription}
+                  onChange={(e) => setNewJournal({...newJournal, subscription: e.target.value})}
+                  placeholder="Enter subscription information (plain text only)..."
+                  rows={4}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Publication Charges</label>
+                <textarea
+                  value={newJournal.publication}
+                  onChange={(e) => setNewJournal({...newJournal, publication: e.target.value})}
+                  placeholder="Enter publication charges information (plain text only)..."
+                  rows={4}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Advertisement Information</label>
+                <textarea
+                  value={newJournal.advertisement}
+                  onChange={(e) => setNewJournal({...newJournal, advertisement: e.target.value})}
+                  placeholder="Enter advertisement information (plain text only)..."
+                  rows={4}
+                />
               </div>
 
               {/* Description */}
@@ -833,14 +827,14 @@ const AdminJournals = () => {
 
               {/* Journal Details - Content for Journal Pages */}
               <h3 className={styles.sectionTitle}>Journal Content (for Journal Pages)</h3>
-              <p className={styles.sectionHint}>This content will be displayed on the journal's dedicated page.</p>
+              <p className={styles.sectionHint}>This content will be displayed on the journal's dedicated page. Plain text only - HTML tags will be stripped.</p>
               
               <div className={styles.formGroup}>
                 <label>About the Journal</label>
                 <textarea
                   value={newJournal.about_journal}
                   onChange={(e) => setNewJournal({...newJournal, about_journal: e.target.value})}
-                  placeholder="Enter detailed information about the journal, its history, mission, etc. (HTML supported)"
+                  placeholder="Enter detailed information about the journal, its history, mission, etc."
                   rows={5}
                 />
               </div>
@@ -850,7 +844,7 @@ const AdminJournals = () => {
                 <textarea
                   value={newJournal.aim_objective}
                   onChange={(e) => setNewJournal({...newJournal, aim_objective: e.target.value})}
-                  placeholder="Enter the aims and objectives of the journal (HTML supported)"
+                  placeholder="Enter the aims and objectives of the journal"
                   rows={4}
                 />
               </div>
@@ -860,7 +854,7 @@ const AdminJournals = () => {
                 <textarea
                   value={newJournal.scope}
                   onChange={(e) => setNewJournal({...newJournal, scope: e.target.value})}
-                  placeholder="Enter the scope and topics covered by the journal (HTML supported)"
+                  placeholder="Enter the scope and topics covered by the journal"
                   rows={4}
                 />
               </div>
@@ -870,7 +864,7 @@ const AdminJournals = () => {
                 <textarea
                   value={newJournal.criteria}
                   onChange={(e) => setNewJournal({...newJournal, criteria: e.target.value})}
-                  placeholder="Enter the criteria for paper submission (HTML supported)"
+                  placeholder="Enter the criteria for paper submission"
                   rows={4}
                 />
               </div>
@@ -880,7 +874,7 @@ const AdminJournals = () => {
                 <textarea
                   value={newJournal.detailed_guidelines}
                   onChange={(e) => setNewJournal({...newJournal, detailed_guidelines: e.target.value})}
-                  placeholder="Enter detailed submission and formatting guidelines (HTML supported)"
+                  placeholder="Enter detailed submission and formatting guidelines"
                   rows={5}
                 />
               </div>
@@ -890,7 +884,7 @@ const AdminJournals = () => {
                 <textarea
                   value={newJournal.chief_say}
                   onChange={(e) => setNewJournal({...newJournal, chief_say: e.target.value})}
-                  placeholder="Enter a message from the Chief Editor (HTML supported)"
+                  placeholder="Enter a message from the Chief Editor"
                   rows={4}
                 />
               </div>
@@ -900,7 +894,7 @@ const AdminJournals = () => {
                 <textarea
                   value={newJournal.readings}
                   onChange={(e) => setNewJournal({...newJournal, readings: e.target.value})}
-                  placeholder="Enter recommended readings or references (HTML supported)"
+                  placeholder="Enter recommended readings or references"
                   rows={3}
                 />
               </div>

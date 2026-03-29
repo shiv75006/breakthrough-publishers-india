@@ -593,7 +593,7 @@ const JournalDetailPage = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="short_form">Short Form / Abbreviation</label>
+                  <label htmlFor="short_form">Short Form / Abbreviation *</label>
                   <input
                     type="text"
                     id="short_form"
@@ -601,6 +601,7 @@ const JournalDetailPage = () => {
                     value={editFormData.short_form || ''}
                     onChange={handleEditInputChange}
                     placeholder="e.g., IJCS"
+                    required
                   />
                 </div>
                 <div className="form-group full-width">
@@ -697,14 +698,14 @@ const JournalDetailPage = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="guidelines">Guidelines URL</label>
-                  <input
-                    type="text"
+                  <label htmlFor="guidelines">Guidelines</label>
+                  <textarea
                     id="guidelines"
                     name="guidelines"
                     value={editFormData.guidelines || ''}
                     onChange={handleEditInputChange}
-                    placeholder="https://..."
+                    rows="4"
+                    placeholder="Enter submission guidelines (plain text only)"
                   />
                 </div>
               </div>
@@ -717,7 +718,7 @@ const JournalDetailPage = () => {
                 <h3>Journal Page Content</h3>
               </div>
               <p className="section-description">
-                This content will be displayed on the journal's dedicated page (e.g., /j/ijcs). HTML formatting is supported.
+                This content will be displayed on the journal's dedicated page (e.g., /j/ijcs). Plain text only - HTML tags will be stripped.
               </p>
               
               <div className="form-grid single-column">
